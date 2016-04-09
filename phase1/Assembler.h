@@ -6,9 +6,10 @@
 class Assembler;
 
 // included dependencies
-#include <iostream>
-#include <map>
-#include <string>
+#include <iostream> // std::cout
+#include <map>  // std::map
+#include <string> // std::string
+#include <sstream> //std::istringstream
 
 using namespace std;
 
@@ -17,12 +18,12 @@ class Assembler{
         Assembler(); //main logic
         string sendFinalObjProg(); //sends catted final prog.o file
     private:
-        returnFormat1(); //based on flag, use format 1
-        returnFormat2(); //based on flag, use format 2
-        storeSNN(); // store OPCODE and N!, if cin.good() store N2
-        appendToFinal(); //append produced # to final prog.o
-        initializeMemberFields();
-        return_2s_comp_format(); //if num is negative, reformat before adding to instruction
+        int returnFormat1(); //based on flag, use format 1
+        int returnFormat2(); //based on flag, use format 2
+        void storeSNN(string &); // store OPCODE and N!, if cin.good() store N2
+        void appendToFinal(int &); //append produced # to final prog.o
+        void initializeMemberFields() const;
+        int returnNumIn2sComp(); //if num is negative, reformat before adding to instruction
         
         map <string, int[]> opcodes;
         map <int, int> RD;
