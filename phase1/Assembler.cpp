@@ -19,6 +19,7 @@ Assembler::Assembler(){
 }
 
 int Assembler::returnFormat1(){
+    opcode = opcodes
 
 }
 
@@ -35,21 +36,28 @@ void Assembler::storeSNN(string &SNN){
             instruct_opcode = temp;
         else if (i == 1)
             //cast int to string
-            N1 = temp;
+            RDestination = temp;
         else
             //cast string to int
-            N2 = temp;
+            num_2 = temp;
+        i++;
     } 
+    if (i == 1) //ensure that num_2 is 0  if there is only one value
+        num_2 = 0;
 }
 
 void Assembler::appendToFinal(int &){
     
 }
 
-void Assembler::initializeMemberFunctions() const{
+void Assembler::initializeMemberFields() const{
     opcodes = {
                 {"load", {
 
 
     }
+}
+
+int Assembler::returnNumIn2sComp(){
+
 }
