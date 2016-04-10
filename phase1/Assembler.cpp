@@ -22,7 +22,9 @@ int Assembler::returnFormat1(){
     int immediate = immediateConversion[opcodes[instruct_opcode][1]]; //bit 8
 
     if (isOneNum){
-        
+        int destRegister = RD[RDestination];//bits 10-9
+        // rest are dont cares
+        return currentOpcode + destRegister + immediate;  //SR bits 7-6 and unused bits 5-0 are don't cares
     }
     else{
         int destRegister = RD[RDestination]; //bits 10-9
@@ -38,12 +40,6 @@ int Assembler::returnFormat2(){
     int currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-10
     int destRegister = RD[RDestination];
     int immediate = immediateConversion[opcodes[instruct_opcode][1]];
-    if (isOneNum){
-
-    }
-    else{
-
-    }
 }
 
 void Assembler::storeSNN(string &SNN){
@@ -59,8 +55,8 @@ void Assembler::storeSNN(string &SNN){
             num_2 = atoi(temp.c_str());
         i++;
     } 
-    if (i == 1) //ensure that num_2 is 0  if there is only one value
-        num_2 = 0;
+    if (i == 1) //ensure that num_2 is set out of bounds if there is only one value
+        num_2 = -129; 
         isOneNum = true;
 }
 
@@ -71,8 +67,8 @@ void Assembler::appendToFinal(int &instr){
 
 void Assembler::initializeMemberFields() const{
     opcodes = {
-        { "load", {{,0}} },
-        { "loadi", {{,1}} },
+        { "load", {{,0,1}} },  //add extra element containing the format used.
+        { "loadi", {{,1}} },   //see interface for details about format
         { "store", {{,1}} },
         { "add", {{,0}} },
         { "addi", {{,1}} },
