@@ -3,11 +3,12 @@
 using namespace std;
 
 Assembler::Assembler(){
+    fstream assemblyProg;
     initializeMemberFields();
     string line;
     int rawBin;
-
-    while(getline(cin, line)){
+    getline(assemblyProg, line)
+    while(){
         storeSNN(line);
         if ((opcodes[instruct_opcode])[1] == 0){
             appendToFinal(returnFormat1());
