@@ -8,39 +8,48 @@ Assembler::Assembler(){
     string line;
     int rawBin;
     getline(assemblyProg, line)
-    while(){
+    while(!assemblyProg.eof()){
         storeSNN(line);
-        if ((opcodes[instruct_opcode])[1] == 0){
+        if ((opcodes[instruct_opcode])[1] == 0)
             appendToFinal(returnFormat1());
+        else if ((opcodes[instruct_opcode])[1] == 1)
+            appendToFinal(returnFormat2_ADDR());
         else
-            appendToFinal(returnFormat2());
+            appendToFinal(returnFormat2_CONST())
     }
 
 }
 
-int Assembler::returnFormat1(){
+unsigned Assembler::returnFormat1(){
     int currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-11
-    int immediate = immediateConversion[opcodes[instruct_opcode][1]]; //bit 8
 
     if (isOneNum){
         int destRegister = RD[RDestination];//bits 10-9
         // rest are dont cares
-        return currentOpcode + destRegister + immediate;  //SR bits 7-6 and unused bits 5-0 are don't cares
+        return currentOpcode + destRegister ;  //SR bits 7-6 and unused bits 5-0 are don't cares
     }
     else{
         int destRegister = RD[RDestination]; //bits 10-9
         int sourceRegister = RS[num_2]; //bits 7-6
         // bits 5-0 unused
 
-        return currentOpcode + destRegister + immediate + sourceRegister;
+        return currentOpcode + destRegister + sourceRegister;
     }
 
 }
 
-int Assembler::returnFormat2(){
-    int currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-10
-    int destRegister = RD[RDestination];
-    int immediate = immediateConversion[opcodes[instruct_opcode][1]];
+unsigned Assembler::returnFormat2_ADDR(){
+    unsigned currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-10
+    unsigned destRegister = RD[RDestination];
+    unsigned immediate = 256; //#
+    return currentOpcode + destRegister + immediate + ADDR;
+}
+
+unsigned Assembler::returnFormat2_CONST(){
+    unsigned currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-10
+    unsigned destRegister = RD[RDestination];
+    unsigned immediate = 256; //#
+    return currentOpcode + destRegister + immediate + CONST;
 }
 
 void Assembler::storeSNN(string &SNN){
@@ -68,10 +77,10 @@ void Assembler::appendToFinal(int &instr){
 
 void Assembler::initializeMemberFields() const{
     opcodes = {
-        { "load", {{,0,1}} },  //add extra element containing the format used.
-        { "loadi", {{,1}} },   //see interface for details about format
-        { "store", {{,1}} },
-        { "add", {{,0}} },
+        { "load", {{ 0 , 1 }} },  //add extra element containing the format used.
+        { "loadi", {{72,1}} },   //see interface for details about format
+        { "store", {{,1}} },       //SECOND ELEMENTS ARE WRONG! MUST FIX BEFORE USE
+        { "add", {{,0}} },      
         { "addi", {{,1}} },
         { "addc", {{,0}} },
         { "addci", {{,1}} },
