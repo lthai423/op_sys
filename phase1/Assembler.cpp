@@ -1,4 +1,5 @@
 #include "Assembler.h" // depends declared in interfaces
+#include<stdint.h>  //library required to compute the two's-complement of an 8-bit binary number
 
 using namespace std;
 
@@ -42,7 +43,12 @@ int Assembler::returnFormat2(){
 
     }
     else{
-        
+        int destRegister = RD[RDestination]; 
+        uint8_t twos_complement(uint8_t val)	//code that executes 2's complement using #include<stdint.h>
+        {
+            return -(unsigned int)val;
+        }
+        return currentOpcode + destRegister + immediate + twos_complement(uint8_t val);  //is this legal? 
     }
 }
 
