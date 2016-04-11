@@ -22,25 +22,26 @@ class Assembler{
 
     private:
         //internal "helper" functions
-        unsigned returnFormat1(); //based on flag, use format 1
-        unsigned returnFormat2(); //based on flag, use format 2 addr
-        unsigned returnFormat3(); //based on flag, use format 2 const
+        uint16_t returnFormat1(); //based on flag, use format 1 - 0
+        uint16_t returnFormat2_ADDR(); //based on flag, use format 2 addr - 1
+        uint16_t returnFormat2_CONST(); //based on flag, use format 2 const - 2
         void storeSNN(string &); // store OPCODE and N!, if cin.good() store N2
         void appendToFinal(int &); //append produced # to final prog.o
         void initializeMemberFields() const;
-        int returnNumIn2sComp(); //if num is negative, reformat before adding to instruction
+        // int returnNumIn2sComp(); //if num is negative, reformat before adding to instruction
         
 
         //member field
-        map <string, array<unsigned, 3>> opcodes; //stores opcode in decimal value and immediate "flag"
-        map <int, unsigned> RD; //stores register destination values in decimal value - can apply for
+        map <string, array<uint16_t, 2>> opcodes; //stores opcode in decimal value and immediate "flag"
+        map <int, uint16_t> RD; //stores register destination values in decimal value - can apply for
                             //both formats' RD are in the same location
-        map <int, unsigned> RS; //stores source register in decimal value and immediate "flag"
+        map <int, uint16_t> RS; //stores source register in decimal value and immediate "flag"
         string FinalObjProg; //stores final produced after being appended to sequentially
-        unsigned immediateConversion[]; //stores Immediate Register conversion - "flags" made to match
+        uint16_t immediateConversion[]; //stores Immediate Register conversion - "flags" made to match
                                                                             // with array indices
-        unsigned RDestination; // Register Destination
-        unsigned num_2; //could be empty
+        uint16_t RDestination; // Register Destination
+        uint16_t ADDR; //could be empty 
+        uint16_t CONST; //needs 8 bit two's comp num. subject to change
         string instruct_opcode; //stores string of opcode
         bool isOneNum; // does the current operation consist of only one number
              

@@ -1,4 +1,5 @@
 #include "Assembler.h" // depends declared in interfaces
+#include<stdint.h>  //library required to compute the two's-complement of an 8-bit binary number
 
 using namespace std;
 
@@ -20,7 +21,7 @@ Assembler::Assembler(){
 
 }
 
-unsigned Assembler::returnFormat1(){
+uint16_t Assembler::returnFormat1(){
     int currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-11
 
     if (isOneNum){
@@ -38,17 +39,17 @@ unsigned Assembler::returnFormat1(){
 
 }
 
-unsigned Assembler::returnFormat2_ADDR(){
-    unsigned currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-10
-    unsigned destRegister = RD[RDestination];
-    unsigned immediate = 256; //#
+uint16_t Assembler::returnFormat2_ADDR(){
+    uint16_t currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-10
+    uint16_t destRegister = RD[RDestination];
+    uint16_t immediate = 256; //#
     return currentOpcode + destRegister + immediate + ADDR;
 }
 
-unsigned Assembler::returnFormat2_CONST(){
-    unsigned currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-10
-    unsigned destRegister = RD[RDestination];
-    unsigned immediate = 256; //#
+uint16_t Assembler::returnFormat2_CONST(){
+    uint16_t currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-10
+    uint16_t destRegister = RD[RDestination];
+    uint16_t immediate = 256; //#
     return currentOpcode + destRegister + immediate + CONST;
 }
 
@@ -60,9 +61,9 @@ void Assembler::storeSNN(string &SNN){
         if (i == 0)
             instruct_opcode = temp;
         else if (i == 1)
-            Rdestination = atoi(temp.c_str());
+            Rdestination = (uint16_t)atoi(temp.c_str());  //cast into 16 bit unsigned integer
         else
-            num_2 = atoi(temp.c_str());
+            num_2 = (uint16_t)atoi(temp.c_str());
         i++;
     } 
     if (i == 1) //ensure that num_2 is set out of bounds if there is only one value
@@ -114,16 +115,16 @@ void Assembler::initializeMemberFields() const{
     };
     RD = {
         { 1 , 0 },
-        { 2 , 256 },
-        { 3 , 512 },
-        { 4 , 768 }
+        { 2 , 512 },
+        { 3 , 1024 },
+        { 4 , 1536 }
     };
 
     RS = {
         { 1 , 0 },
-        { 2 , 32 },
-        { 3 , 64 },
-        { 4 , 96 }
+        { 2 , 64 },
+        { 3 , 128 },
+        { 4 , 192 }
     };
 
     immediateConversion = { 0 , 256 };
@@ -134,6 +135,3 @@ void Assembler::initializeMemberFields() const{
 
 }
 
-int Assembler::returnNumIn2sComp(){
-
-}
