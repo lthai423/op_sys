@@ -42,7 +42,7 @@ int Assembler::returnFormat2(){
 
     }
     else{
-
+        
     }
 }
 
@@ -108,16 +108,16 @@ void Assembler::initializeMemberFields() const{
     };
     RD = {
         { 1 , 0 },
-        { 2 , 256 },
-        { 3 , 512 },
-        { 4 , 768 }
+        { 2 , 512 },
+        { 3 , 1024 },
+        { 4 , 1536 }
     };
 
     RS = {
         { 1 , 0 },
-        { 2 , 32 },
-        { 3 , 64 },
-        { 4 , 96 }
+        { 2 , 64 },
+        { 3 , 128 },
+        { 4 , 192 }
     };
 
     immediateConversion = { 0 , 256 };
@@ -129,5 +129,7 @@ void Assembler::initializeMemberFields() const{
 }
 
 int Assembler::returnNumIn2sComp(){
+
+
 
 }
