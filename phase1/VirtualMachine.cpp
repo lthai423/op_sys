@@ -35,15 +35,46 @@ void VirtualMachine::execute(int &pc){
 	(*instr[ins.f1.OP])();  // ==  (functionName)(); functionName.base == beginning addr in mem loc
 }
 
-void VirtualMachine::load(){
+
+void VirtualMachine::setCarryBit()
+{
+
+}
+
+void VirtualMachine::setLessBit()
+{
+
+}
+
+void VirtualMachine::setEqualBit()
+{
+
+}
+
+void VirtualMachine::setGreaterBit()
+{
+
+}
+
+void VirtualMachine::LOAD(){
+	int RD = 
 	r[RD] += mem[ADDR];
 }
 
-void VirtualMachine::loadi(){
+void VirtualMachine::LOADI(){
 	r[RD] += CONST;
 }
 
+void VirtualMachine::Store()
+{
+	mem[ADDR] = r[RD];
+}
 
+void VirtualMachine::Add()
+{
+	r[RD] += r[RS];
+    setCarryBit();
+}
 
 void VirtualMachine::populateFunctionMap(){
 	instr = {
@@ -84,25 +115,186 @@ void VirtualMachine::populateFunctionMap(){
 	}
 }
 
+void VirtualMachine::Addi(int RD, uint16_t CONST)
+{
+	r[RD] += CONST;
+    setCarryBit();
+}
+
+void VirtualMachine::Addc(int RD, int RS)
+{
+	r[RD] += r[RS] + returnCarryBit();
+	setCarryBit();	//guarantees to set the carry bit
+}
+
+void VirtualMachine::Addci(int RD, uint16_t CONST)
+{
+	r[RD] += CONST + returnCarryBit();
+    setCarryBit();	//guarantees to set the carry bit
+}
+
+void VirtualMachine::Sub(int RD, int RS)
+{
+	r[RD] -= r[RS];
+	setCarryBit();
+}
+
+void VirtualMachine::Subi(int RD, uint16_t CONST)
+{
+	r[RD] -= CONST;
+	setCarryBit();
+}
+
+void VirtualMachine::Subc(int RD, int RS)
+{
+	r[RD] = r[RD] - r[RS] - returnCarryBit();
+	setCarryBit();
+}
+
+void VirtualMachine::Subci(int RD, uint16_t CONST)
+{
+	r[RD] = r[RD] - CONST - returnCarryBit();
+}
+
+void VirtualMachine::And(int RD, int RS)
+{
+	r[RD] = r[RD] & r[RS];
+}
+
+void VirtualMachine::Andi(int RD, uint16_t CONST)
+{
+	r[RD] = r[RD] & CONST;
+}
+
+void VirtualMachine::Xor(int RD, int RS)
+{
+	r[RD] = r[RD] ^ r[RS];
+}
+
+void VirtualMachine::Xori(int RD, uint16_t CONST)
+{
+	r[RD] = r[RD] ^ CONST;
+}
+
+void VirtualMachine::Compl(int RD)
+{
+	r[RD] = ~r[RD];	//bit negation
+}
+
+void VirtualMachine::Shl(int RD)
+{
+	r[RD] = r[RD] << 1;
+	//shift bit needs to be set to 0 **LOOK INTO THIS**
+}
+
+void VirtualMachine::Shla(int RD)
+{
+	//shift left arithmetic
+}
+
+void VirtualMachine::Shr(int RD)
+{
+	r[RD] = r[RD] >> 1;	
+	//shift bit needs to be set to 0
+}
+
+void VirtualMachine::Shra(int RD)
+{
+	//shift right arithmetic
+}
+
+void VirtualMachine::Compr(int RD, int RS)
+{
+	if (r[RD] < r[RS])
+	    setLessBit();
+	else if (r[RD] == r[RS])
+		setEqualBit();
+	else (r[RD] > r[RS])
+		setGreaterBit();
+}
+
+void VirtualMachine::Compri(int RD, uint16_t CONST)
+{
+	if(r[RD]<CONST)
+	   setLessBit();
+	else if(r[RD] == CONST)
+		setEqualBit();
+	else (r[RD] > CONST)
+		setGreaterBit();
+}
+
+void VirtualMachine::GetStat(int RD)
+{
+	r[RD] = SR;
+}
+
+void VirtualMachine::PutStat(int RD)
+{
+	SR = r[RD];
+}
+
+void VirtualMachine::Jump(uint16_t ADDR)
+{
+	pc = ADDR;
+	//Needs work
+}
+
+void VirtualMachine::Jumpl(uint16_t ADDR)
+{
+	if(setLessBit() == 1)
+	    pc = ADDR;
+	//Needs work
+}
+
+void VirtualMachine::Jumpe(int pc, uint16_t ADDR)
+{
+	if(setEqualBit() == 1)
+	    pc=ADDR;
+	//Needs work
+}
+
+void VirtualMachine::Jumpg(int pc, uint16_t ADDR)
+{
+	if(setGreaterBit() == 1)
+	    pc = ADDR;
+	//Needs work
+}
+
+void VirtualMachine::Call(int pc, uint16_t ADDR)
+{
+	stack<uint16_t> x;
+	pc = ADDR
+	x.push(pc);
+
+	//Needs work
+}
+
+void VirtualMachine::Return()
+{
+	x.pop();
+	pc -> where it was pointing initially... would this be a location in mem?
 
 
+	//Needs work
+}
 
+void VirtualMachine::Read(int RD)
+{
+		
+//read new content of r[RD] from .in file?
+}
 
+void VirtualMachine::Write(int RD)
+{
+	//write r[RD] into .outfile
+}
 
+void VirtualMachine::Halt()
+{
+	//halt exec.done()?
+}
 
-/*
+void VirtualMachine::Noop()
+{
 
-Research:
-
-[SOLVED] How to "link" map of function pointers to current class? Are we going to keep it in this class? Or should we include it.
-
-How to "link" union in class.  I want to use external.  make it so. plus rethink the scope of the union and its' ability to access 
-member fields in the different  class, encapsulation
-
-Start thinking of how to define the functions that we call. MAHHHFUCKAAHHH
-
-TEAM ON 3.....
-1 2 3
-TEAM
-!!!!!
-
+}
