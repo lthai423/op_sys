@@ -3,8 +3,6 @@
 using namespace std;
 
 VirtualMachine::VirtualMachine(){
-  r = vector <int> (REG_FILE_SIZE);
-  mem = vector <int> (MEM_SIZE);
   populateMemory(); //set base and limit in there
 
   //start fetch-decode-execute cycle
@@ -15,6 +13,8 @@ VirtualMachine::VirtualMachine(){
 }
 
 void VirtualMachine::populateMemory(){
+  r = vector <int> (REG_FILE_SIZE);
+  mem = vector <int> (MEM_SIZE);
   fstream prog;
   prog.open("prog.o");
   string line, temp;
@@ -35,13 +35,55 @@ void VirtualMachine::execute(int &pc){
 	(*instr[ins.f1.OP])();  // ==  (functionName)(); functionName.base == beginning addr in mem loc
 }
 
-void VirtualMachine::load(int RD, uint16_t ADDR){
+void VirtualMachine::load(){
 	r[RD] += mem[ADDR];
 }
 
-void VirtualMachine::loadi(int RD, uint16_t CONST){
+void VirtualMachine::loadi(){
 	r[RD] += CONST;
 }
+
+
+
+void VirtualMachine::populateFunctionMap(){
+	instr = {
+		{ 0 , &VirtualMachine::LOAD },
+		{ 0 , &VirtualMachine::LOADI },
+		{ 1 , &VirtualMachine::STORE },
+		{ 2 , &VirtualMachine::ADD },
+		{ 2 , &VirtualMachine::ADDI },
+		{ 3 , &VirtualMachine::ADDC },
+		{ 3 , &VirtualMachine::ADDCI },
+		{ 4 , &VirtualMachine::SUB },
+		{ 4 , &VirtualMachine::SUBI },
+		{ 5 , &VirtualMachine::SUBC },
+		{ 5 , &VirtualMachine::SUBCI },
+		{ 6 , &VirtualMachine::AND },
+		{ 6 , &VirtualMachine::ANDI },
+		{ 7 , &VirtualMachine::XOR },
+		{ 7 , &VirtualMachine::XORI },
+		{ 8 , &VirtualMachine::COMPL },
+		{ 9 , &VirtualMachine::SHL },
+		{ 10 , &VirtualMachine::SHLA },
+		{ 11 , &VirtualMachine::SHR },
+		{ 12 , &VirtualMachine::SHRA },
+		{ 13 , &VirtualMachine::COMPR },
+		{ 13 , &VirtualMachine::COMPRI },
+		{ 14 , &VirtualMachine::GETSTAT },
+		{ 15 , &VirtualMachine::PUTSTAT },
+		{ 16 , &VirtualMachine::JUMP },
+		{ 17 , &VirtualMachine::JUMPL },
+		{ 18 , &VirtualMachine::JUMPE },
+		{ 19 , &VirtualMachine::JUMPG },
+		{ 20 , &VirtualMachine::CALL },
+		{ 21 , &VirtualMachine::RETURN },
+		{ 22 , &VirtualMachine::READ }, 
+		{ 23 , &VirtualMachine::WRITE },
+		{ 24 , &VirtualMachine::HALT },
+		{ 25 , &VirtualMachine::NOOP }
+	}
+}
+
 
 
 
