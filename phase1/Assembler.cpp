@@ -20,6 +20,7 @@ Assembler::Assembler(){
             appendToFinal(returnFormat2_CONST());
         getline(assemblyProg, line);
     }
+    //close and write as "prog.o"
 
 }
 

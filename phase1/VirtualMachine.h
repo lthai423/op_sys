@@ -33,8 +33,17 @@ class VirtualMachine{
 	int base;
 	int limit;
 	uint16_t clock;
+	map <int, FP> instr; //still need to populate map
         
 	//helper functions
+  	void execute(int &);
+  	void populateMemory();
+  	void populateFunctionMap();
+
+  	//opcode functions*
+  	void load();
+  	...
+  	
     public:
 	VirtualMachine();
       	
