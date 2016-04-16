@@ -22,7 +22,7 @@ void VirtualMachine::populateMemory(){
   getline(prog, line);
   int i;
   while(!prog.eof()){
-  	iss << temp; //ensures no whitespace
+        iss << temp; //ensures no whitespace
     mem[i++] = (uint16_t)atoi(temp.c_str());
   }
   base = 0;
@@ -31,8 +31,8 @@ void VirtualMachine::populateMemory(){
 }
 
 void VirtualMachine::execute(int &pc){
-	instruction ins(pc); // make constructor with int as parameter
-	(*instr[ins.f1.OP])();  // ==  (functionName)(); functionName.base == beginning addr in mem loc
+        instruction ins(pc); // make constructor with int as parameter
+        (*instr[ins.f1.OP])();  // ==  (functionName)(); functionName.base == beginning addr in mem loc
 }
 
 
@@ -41,7 +41,6 @@ void VirtualMachine::setCarryBit()
 
 }
 
-void VirtualMachine::setLessBit()
 {
 
 }
@@ -57,244 +56,247 @@ void VirtualMachine::setGreaterBit()
 }
 
 void VirtualMachine::LOAD(){
-	int RD = 
-	r[RD] += mem[ADDR];
+        int RD =
+        r[RD] += mem[ADDR];
 }
 
 void VirtualMachine::LOADI(){
-	r[RD] += CONST;
+        r[RD] += CONST;
 }
 
-void VirtualMachine::Store()
+void VirtualMachine::STORE()
 {
-	mem[ADDR] = r[RD];
+        mem[ADDR] = r[RD];
 }
 
-void VirtualMachine::Add()
+void VirtualMachine::ADD()
 {
-	r[RD] += r[RS];
+        r[RD] += r[RS];
     setCarryBit();
 }
 
 void VirtualMachine::populateFunctionMap(){
-	instr = {
-		{ 0 , &VirtualMachine::LOAD },
-		{ 0 , &VirtualMachine::LOADI },
-		{ 1 , &VirtualMachine::STORE },
-		{ 2 , &VirtualMachine::ADD },
-		{ 2 , &VirtualMachine::ADDI },
-		{ 3 , &VirtualMachine::ADDC },
-		{ 3 , &VirtualMachine::ADDCI },
-		{ 4 , &VirtualMachine::SUB },
-		{ 4 , &VirtualMachine::SUBI },
-		{ 5 , &VirtualMachine::SUBC },
-		{ 5 , &VirtualMachine::SUBCI },
-		{ 6 , &VirtualMachine::AND },
-		{ 6 , &VirtualMachine::ANDI },
-		{ 7 , &VirtualMachine::XOR },
-		{ 7 , &VirtualMachine::XORI },
-		{ 8 , &VirtualMachine::COMPL },
-		{ 9 , &VirtualMachine::SHL },
-		{ 10 , &VirtualMachine::SHLA },
-		{ 11 , &VirtualMachine::SHR },
-		{ 12 , &VirtualMachine::SHRA },
-		{ 13 , &VirtualMachine::COMPR },
-		{ 13 , &VirtualMachine::COMPRI },
-		{ 14 , &VirtualMachine::GETSTAT },
-		{ 15 , &VirtualMachine::PUTSTAT },
-		{ 16 , &VirtualMachine::JUMP },
-		{ 17 , &VirtualMachine::JUMPL },
-		{ 18 , &VirtualMachine::JUMPE },
-		{ 19 , &VirtualMachine::JUMPG },
-		{ 20 , &VirtualMachine::CALL },
-		{ 21 , &VirtualMachine::RETURN },
-		{ 22 , &VirtualMachine::READ }, 
-		{ 23 , &VirtualMachine::WRITE },
-		{ 24 , &VirtualMachine::HALT },
-		{ 25 , &VirtualMachine::NOOP }
-	}
+        instr = {
+                { 0 , &VirtualMachine::LOAD },
+                { 0 , &VirtualMachine::LOADI },
+                { 1 , &VirtualMachine::STORE },
+                { 2 , &VirtualMachine::ADD },
+                { 2 , &VirtualMachine::ADDI },
+                { 3 , &VirtualMachine::ADDC },
+                { 3 , &VirtualMachine::ADDCI },
+                { 4 , &VirtualMachine::SUB },
+                { 4 , &VirtualMachine::SUBI },
+                { 5 , &VirtualMachine::SUBC },
+                { 5 , &VirtualMachine::SUBCI },
+                { 6 , &VirtualMachine::AND },
+                { 6 , &VirtualMachine::ANDI },
+                { 7 , &VirtualMachine::XOR },
+                { 7 , &VirtualMachine::XORI },
+                { 8 , &VirtualMachine::COMPL },
+                { 9 , &VirtualMachine::SHL },
+                { 10 , &VirtualMachine::SHLA },
+                { 11 , &VirtualMachine::SHR },
+                { 12 , &VirtualMachine::SHRA },
+                { 13 , &VirtualMachine::COMPR },
+                { 13 , &VirtualMachine::COMPRI },
+                { 14 , &VirtualMachine::GETSTAT },
+                { 15 , &VirtualMachine::PUTSTAT },
+                { 16 , &VirtualMachine::JUMP },
+                { 17 , &VirtualMachine::JUMPL },
+                { 18 , &VirtualMachine::JUMPE },
+                { 19 , &VirtualMachine::JUMPG },
+                { 20 , &VirtualMachine::CALL },
+                { 21 , &VirtualMachine::RETURN },
+                { 22 , &VirtualMachine::READ },
+                { 23 , &VirtualMachine::WRITE },
+                { 24 , &VirtualMachine::HALT },
+                { 25 , &VirtualMachine::NOOP }
+        }
 }
 
-void VirtualMachine::Addi(int RD, uint16_t CONST)
+void VirtualMachine::ADDI()
 {
-	r[RD] += CONST;
+    r[RD] += CONST;
     setCarryBit();
 }
 
-void VirtualMachine::Addc(int RD, int RS)
+void VirtualMachine::ADDC()
 {
-	r[RD] += r[RS] + returnCarryBit();
-	setCarryBit();	//guarantees to set the carry bit
+        r[RD] += r[RS] + returnCarryBit();
+        setCarryBit();  //guarantees to set the carry bit
 }
 
-void VirtualMachine::Addci(int RD, uint16_t CONST)
+void VirtualMachine::ADDCI()
 {
-	r[RD] += CONST + returnCarryBit();
-    setCarryBit();	//guarantees to set the carry bit
+    r[RD] += CONST + returnCarryBit();
+    setCarryBit();      //guarantees to set the carry bit
 }
 
-void VirtualMachine::Sub(int RD, int RS)
+void VirtualMachine::SUB()
 {
-	r[RD] -= r[RS];
-	setCarryBit();
+        r[RD] -= r[RS];
+        setCarryBit();
 }
 
-void VirtualMachine::Subi(int RD, uint16_t CONST)
+void VirtualMachine::SUBI()
 {
-	r[RD] -= CONST;
-	setCarryBit();
+        r[RD] -= CONST;
+        setCarryBit();
 }
 
-void VirtualMachine::Subc(int RD, int RS)
+void VirtualMachine::SUBC()
 {
-	r[RD] = r[RD] - r[RS] - returnCarryBit();
-	setCarryBit();
+        r[RD] = r[RD] - r[RS] - returnCarryBit();
+        setCarryBit();
 }
 
-void VirtualMachine::Subci(int RD, uint16_t CONST)
+void VirtualMachine::SUBCI()
 {
-	r[RD] = r[RD] - CONST - returnCarryBit();
+        r[RD] = r[RD] - CONST - returnCarryBit();
+	  setCarryBit();
 }
 
-void VirtualMachine::And(int RD, int RS)
+void VirtualMachine::AND()
 {
-	r[RD] = r[RD] & r[RS];
+        r[RD] = r[RD] & r[RS];
 }
 
-void VirtualMachine::Andi(int RD, uint16_t CONST)
+void VirtualMachine::ANDI()
 {
-	r[RD] = r[RD] & CONST;
+        r[RD] = r[RD] & CONST;
 }
 
-void VirtualMachine::Xor(int RD, int RS)
+void VirtualMachine::XOR()
 {
-	r[RD] = r[RD] ^ r[RS];
+        r[RD] = r[RD] ^ r[RS];
 }
 
-void VirtualMachine::Xori(int RD, uint16_t CONST)
+void VirtualMachine::XORI()
 {
-	r[RD] = r[RD] ^ CONST;
+        r[RD] = r[RD] ^ CONST;
 }
 
-void VirtualMachine::Compl(int RD)
+void VirtualMachine::COMPL()
 {
-	r[RD] = ~r[RD];	//bit negation
+        r[RD] = ~r[RD]; //bit negation
 }
 
-void VirtualMachine::Shl(int RD)
+void VirtualMachine::SHL()
 {
-	r[RD] = r[RD] << 1;
-	//shift bit needs to be set to 0 **LOOK INTO THIS**
+        r[RD] = r[RD] << 1;
+        //shift bit needs to be set to 0 **LOOK INTO THIS**
 }
 
-void VirtualMachine::Shla(int RD)
+void VirtualMachine::SHLA()
 {
-	//shift left arithmetic
+        //shift left arithmetic
 }
 
-void VirtualMachine::Shr(int RD)
+void VirtualMachine::SHR()
 {
-	r[RD] = r[RD] >> 1;	
-	//shift bit needs to be set to 0
+        r[RD] = r[RD] >> 1;
+        //shift bit needs to be set to 0
 }
 
-void VirtualMachine::Shra(int RD)
+void VirtualMachine::SHRA()
 {
-	//shift right arithmetic
+        //shift right arithmetic
 }
 
-void VirtualMachine::Compr(int RD, int RS)
+void VirtualMachine::COMPR()
 {
-	if (r[RD] < r[RS])
-	    setLessBit();
-	else if (r[RD] == r[RS])
-		setEqualBit();
-	else (r[RD] > r[RS])
-		setGreaterBit();
+        if (r[RD] < r[RS])
+            setLessBit();
+        else if (r[RD] == r[RS])
+                setEqualBit();
+        else (r[RD] > r[RS])
+                setGreaterBit();
 }
 
-void VirtualMachine::Compri(int RD, uint16_t CONST)
+void VirtualMachine::COMPRI()
 {
-	if(r[RD]<CONST)
-	   setLessBit();
-	else if(r[RD] == CONST)
-		setEqualBit();
-	else (r[RD] > CONST)
-		setGreaterBit();
+        if(r[RD]<CONST)
+           setLessBit();
+        else if(r[RD] == CONST)
+                setEqualBit();
+        else (r[RD] > CONST)
+                setGreaterBit();
 }
 
-void VirtualMachine::GetStat(int RD)
+void VirtualMachine::GETSTAT()
 {
-	r[RD] = SR;
+        r[RD] = SR;
 }
 
-void VirtualMachine::PutStat(int RD)
+void VirtualMachine::PUTSTAT()
 {
-	SR = r[RD];
+        SR = r[RD];
 }
 
-void VirtualMachine::Jump(uint16_t ADDR)
+void VirtualMachine::JUMP()
 {
-	pc = ADDR;
-	//Needs work
+        pc = ADDR;
+        //Needs work
 }
 
-void VirtualMachine::Jumpl(uint16_t ADDR)
+void VirtualMachine::JUMPL()
 {
-	if(setLessBit() == 1)
-	    pc = ADDR;
-	//Needs work
+        if(setLessBit() == 1)
+            pc = ADDR;
+        //Needs work
 }
 
-void VirtualMachine::Jumpe(int pc, uint16_t ADDR)
+void VirtualMachine::JUMPE()
 {
-	if(setEqualBit() == 1)
-	    pc=ADDR;
-	//Needs work
+        if(setEqualBit() == 1)
+            pc=ADDR;
+        //Needs work
 }
 
-void VirtualMachine::Jumpg(int pc, uint16_t ADDR)
+void VirtualMachine::JUMPG()
 {
-	if(setGreaterBit() == 1)
-	    pc = ADDR;
-	//Needs work
+        if(setGreaterBit() == 1)
+            pc = ADDR;
+        //Needs work
 }
 
-void VirtualMachine::Call(int pc, uint16_t ADDR)
+void VirtualMachine::CALL()
 {
-	stack<uint16_t> x;
-	pc = ADDR
-	x.push(pc);
+        stack<uint16_t> x;
+        pc = ADDR
+        x.push(pc);
 
-	//Needs work
+        //Needs work
 }
 
-void VirtualMachine::Return()
+void VirtualMachine::RETURN()
 {
-	x.pop();
-	pc -> where it was pointing initially... would this be a location in mem?
+        x.pop();
+        pc -> where it was pointing initially... would this be a location in mem?
 
 
-	//Needs work
+        //Needs work
 }
 
-void VirtualMachine::Read(int RD)
-{
-		
-//read new content of r[RD] from .in file?
-}
-
-void VirtualMachine::Write(int RD)
-{
-	//write r[RD] into .outfile
-}
-
-void VirtualMachine::Halt()
-{
-	//halt exec.done()?
-}
-
-void VirtualMachine::Noop()
+void VirtualMachine::READ()
 {
 
+        //read new content of r[RD] from .in file?
 }
+
+void VirtualMachine::WRITE()
+{
+        //write r[RD] into .outfile
+}
+
+void VirtualMachine::HALT()
+{
+        //halt exec.done()?
+}
+
+void VirtualMachine::NOOP()
+{
+
+}
+
+
