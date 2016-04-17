@@ -6,14 +6,13 @@
 class VirtualMachine;
 
 // included dependencies
-#include <iostream> // std::cin
+// #include <iostream> // std::cin
 #include <map>  // std::map
 #include <string> // std::string
 #include <sstream> //std:: istringstream, std::ostringstream
 #include <fstream> // std::fstream
 #include <stdlib.h>  // std::atoi
 #include <stdint.h> // std::uint16_t
-//#include <array>
 #include "union.h" // facilitates parsing of prog.o
 
 using namespace std;
@@ -32,18 +31,56 @@ class VirtualMachine{
 	int sp;
 	int base;
 	int limit;
-	uint16_t clock;
-	map <int, FP> instr; //still need to populate map
+	int clock;
+	map <int, FP> instr;
         
 	//helper functions
-  	void execute(int &);
+  	void execute();
   	void populateMemory();
   	void populateFunctionMap();
+  	void flopCarryBit();
+  	void setGreaterBit();
+  	void setLessBit();
+  	void setEqualBit();
 
-  	//opcode functions*
-  	void load();
-  	...
-  	
+
+  	//opcode functions
+  	void LOAD();
+  	void LOADI();
+  	void STORE();
+  	void ADD();
+  	void ADDI();
+  	void ADDC();
+  	void ADDCI();
+  	void SUB();
+  	void SUBL();
+  	void SUBC();
+  	void SUBCI();
+  	void AND();
+  	void ANDI();
+  	void XOR();
+  	void XORI();
+  	void COMPL();
+  	void SHL();
+  	void SHLA();
+  	void SHR();
+  	void SHRA();
+  	void COMPR();
+  	void COMPRI();
+  	void GETSTAT();
+  	void PUTSTAT();
+  	void JUMP();
+  	void JUMPL();
+  	void JUMPE();
+  	void JUMPG();
+  	void CALL();
+  	void RETURN();
+  	void READ();
+  	void WRITE();
+  	void HALT();
+  	void NOOP();
+  	//end of instr functions
+
     public:
 	VirtualMachine();
       	
