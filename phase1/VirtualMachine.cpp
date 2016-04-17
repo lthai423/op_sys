@@ -7,15 +7,15 @@ VirtualMachine::VirtualMachine(){
 
 	//start fetch-decode-execute cycle
 	while (pc < limit){
-	ir = mem[pc++] //fetch
+	ir = mem[pc++]; //fetch
 	execute(); //
 	}
 }
 
 void VirtualMachine::populateMemory(){
 	__clock = 0;
-	r = vector <int> (REG_FILE_SIZE);
-	mem = vector <int> (MEM_SIZE);
+	r = vector <uint16_t> (REG_FILE_SIZE);
+	mem = vector <uint16_t> (MEM_SIZE);
 	fstream prog;
 	prog.open("prog.o");
 	string line, temp;
@@ -23,7 +23,7 @@ void VirtualMachine::populateMemory(){
 	getline(prog, line);
 	int i;
 	while(!prog.eof()){
-	    iss << temp; //ensures no whitespace
+	    iss >> temp; //ensures no whitespace
 	mem[i++] = (uint16_t)atoi(temp.c_str());
 	}
 	base = 0;
@@ -33,7 +33,7 @@ void VirtualMachine::populateMemory(){
 
 void VirtualMachine::execute(){
 	instruction ins(ir); // make constructor with int as parameter
-	(*instr[ins.f1.OP])();  // ==  (functionName)(); functionName.base == beginning addr in mem loc
+	(this->*instr[ins.f1.OP])(ins);  // ==  (functionName)(); functionName.base == beginning addr in mem loc
 	sr = 0;
 	__clock++;
 }
@@ -47,7 +47,7 @@ void VirtualMachine::setLessBit(){
 	sr = 8;
 }
 
-void VirtualMachine::setEqualBit(){}
+void VirtualMachine::setEqualBit(){
 	sr = 4;
 }
 
@@ -91,99 +91,99 @@ void VirtualMachine::populateFunctionMap(){
         { 23 , &VirtualMachine::WRITE },
         { 24 , &VirtualMachine::HALT },
         { 25 , &VirtualMachine::NOOP }
-    }
+    };
 }
 
-void VirtualMachine::LOAD(){
+void VirtualMachine::LOAD(instruction &ins){
     r[ins.f2.RD] += mem[ins.f2.ADDR];
 }
 
-void VirtualMachine::LOADI(){
+void VirtualMachine::LOADI(instruction &ins){
     r[ins.f3.RD] += ins.f3.CONST;
 }
 
-void VirtualMachine::STORE(){
+void VirtualMachine::STORE(instruction &ins){
     mem[ins.f2.ADDR] = r[ins.f2.RD];
 }
 
-void VirtualMachine::ADD(){
+void VirtualMachine::ADD(instruction &ins){
     r[ins.f1.RD] += r[ins.f1.RS];
     setCarryBit();
 }
 
-void VirtualMachine::ADDI(){
+void VirtualMachine::ADDI(instruction &ins){
     r[ins.f3.RD] += ins.f3.CONST;
     setCarryBit();
 }
 
-void VirtualMachine::ADDC(){
+void VirtualMachine::ADDC(instruction &ins){
     r[ins.f1.RD] = r[ins.f1.RD] + r[ins.f1.RS] + 1;
     setCarryBit();
 }
 
-void VirtualMachine::ADDCI(){
+void VirtualMachine::ADDCI(instruction &ins){
     r[ins.f3.RD] = r[ins.f3.RD] + r[ins.f3.CONST] + 1;
     setCarryBit();
 }
 
-void VirtualMachine::SUB(){
+void VirtualMachine::SUB(instruction &ins){
     r[ins.f1.RD] -= r[ins.f1.RS];
     setCarryBit();
 }
 
-void VirtualMachine::SUBI(){
+void VirtualMachine::SUBI(instruction &ins){
     r[ins.f3.RD] -= ins.f3.CONST;
     setCarryBit();
 }
 
-void VirtualMachine::SUBC(){
+void VirtualMachine::SUBC(instruction &ins){
     r[ins.f1.RD] = r[ins.f1.RD] - r[ins.f1.RS] - 1;
     setCarryBit();
 }
 
-void VirtualMachine::SUBCI(){
- 	r[ins.f3.RD] = r[ins.f3.RD] - CONST - 1;
+void VirtualMachine::SUBCI(instruction &ins){
+ 	r[ins.f3.RD] = r[ins.f3.RD] - ins.f3.CONST - 1;
     setCarryBit();
 }
 
-void VirtualMachine::AND(){
+void VirtualMachine::AND(instruction &ins){
     r[ins.f1.RD] &= r[ins.f1.RS];
 }
 
-void VirtualMachine::ANDI(){
+void VirtualMachine::ANDI(instruction &ins){
     r[ins.f3.RD] &= ins.f3.CONST;
 }
 
-void VirtualMachine::XOR(){
+void VirtualMachine::XOR(instruction &ins){
     r[ins.f1.RD] ^= r[ins.f1.RS];
 }
 
-void VirtualMachine::XORI(){
+void VirtualMachine::XORI(instruction &ins){
     r[ins.f3.RD] ^= ins.f3.CONST;
 }
 
-void VirtualMachine::COMPL(){
+void VirtualMachine::COMPL(instruction &ins){
     r[ins.f1.RD] = ~r[ins.f1.RD];
 }
 
-void VirtualMachine::SHL(){
+void VirtualMachine::SHL(instruction &ins){
     r[ins.f1.RD] <<= 1;
 }
 
-void VirtualMachine::SHLA(){
+void VirtualMachine::SHLA(instruction &ins){
     //shift left arithmetic
 }
 
-void VirtualMachine::SHR(){
+void VirtualMachine::SHR(instruction &ins){
     r[ins.f1.RD] >>= 1;
 }
 
-void VirtualMachine::SHRA(){
+void VirtualMachine::SHRA(instruction &ins){
     //shift right arithmetic
 }
 
-void VirtualMachine::COMPR(){
-    if (r[ins.f1.RD] < r[ins.f1RS])
+void VirtualMachine::COMPR(instruction &ins){
+    if (r[ins.f1.RD] < r[ins.f1.RS])
         setLessBit();
     else if (r[ins.f1.RD] == r[ins.f1.RS])
         setEqualBit();
@@ -191,7 +191,7 @@ void VirtualMachine::COMPR(){
         setGreaterBit();
 }
 
-void VirtualMachine::COMPRI(){
+void VirtualMachine::COMPRI(instruction &ins){
     if(r[ins.f3.RD]< ins.f3.CONST)
        setLessBit();
     else if(r[ins.f3.RD] == ins.f3.CONST)
@@ -200,34 +200,34 @@ void VirtualMachine::COMPRI(){
         setGreaterBit();
 }
 
-void VirtualMachine::GETSTAT(){
+void VirtualMachine::GETSTAT(instruction &ins){
     r[ins.f1.RD] = sr;
 }
 
-void VirtualMachine::PUTSTAT(){
+void VirtualMachine::PUTSTAT(instruction &ins){
     sr = r[ins.f1.RD];
 }
 
-void VirtualMachine::JUMP(){
+void VirtualMachine::JUMP(instruction &ins){
     pc = ins.f2.ADDR;
 }
 
-void VirtualMachine::JUMPL(){
+void VirtualMachine::JUMPL(instruction &ins){
     if(isLessBit())
         pc = ins.f2.ADDR;
 }
 
-void VirtualMachine::JUMPE(){
+void VirtualMachine::JUMPE(instruction &ins){
     if(isEqualBit())
         pc = ins.f2.ADDR;
 }
 
-void VirtualMachine::JUMPG(){
+void VirtualMachine::JUMPG(instruction &ins){
 	if(isGreaterBit())
         pc = ins.f2.ADDR;
 }
 
-void VirtualMachine::CALL(){
+void VirtualMachine::CALL(instruction &ins){
 	//push VM status
 	mem[sp--] = sr;
 	mem[sp--] = ir;
@@ -238,10 +238,11 @@ void VirtualMachine::CALL(){
 	mem[sp--] = pc;
 
 	//jump to new location in mem
-    pc = ins.f2.ADDR
+    pc = ins.f2.ADDR;
 }
 
-void VirtualMachine::RETURN(){
+void VirtualMachine::RETURN(instruction &ins){
+	//pull VM status
 	pc = mem[pc++];
 	r[3] = mem[pc++];
 	r[2] = mem[pc++];
@@ -251,26 +252,26 @@ void VirtualMachine::RETURN(){
 	sr = mem[pc++];
 }
 
-void VirtualMachine::READ(){
+void VirtualMachine::READ(instruction &ins){
 	fstream prog;
 	prog.open("VirtualMachine.in");
 	string line;
 	getline(prog, line);
-	r[ins.f1.RD] = (uint16_t)atoi(temp.c_str());
+	r[ins.f1.RD] = (uint16_t)atoi(line.c_str());
 }
 
-void VirtualMachine::WRITE(){
+void VirtualMachine::WRITE(instruction &ins){
   ofstream ofs;
   ofs.open ("VirtualMachine.out", ofstream::out);
   ofs << static_cast<ostringstream*>( &(ostringstream() << ins.f1.RD) )->str();
   ofs.close();
 }
 
-void VirtualMachine::HALT(){
+void VirtualMachine::HALT(instruction &ins){
 	exit(0);
 }
 
-void VirtualMachine::NOOP(){
+void VirtualMachine::NOOP(instruction &ins){
 	void(0);
 }
 

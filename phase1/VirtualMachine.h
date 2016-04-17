@@ -14,12 +14,15 @@ class VirtualMachine;
 #include <stdlib.h>  // std::atoi
 #include <stdint.h> // std::uint16_t
 #include "union.h" // facilitates parsing of prog.o
+#include <vector>
 
 using namespace std;
 
 class VirtualMachine{
 
     private:
+    typedef void (VirtualMachine::*FP)(instruction &);
+
 	//member fields required for VM
 	static const int REG_FILE_SIZE = 4;
 	static const int MEM_SIZE = 256;
@@ -31,54 +34,59 @@ class VirtualMachine{
 	int sp;
 	int base;
 	int limit;
-	int clock;
+	int __clock;
 	map <int, FP> instr;
         
 	//helper functions
   	void execute();
   	void populateMemory();
   	void populateFunctionMap();
-  	void flopCarryBit();
+  	void setCarryBit();
   	void setGreaterBit();
   	void setLessBit();
   	void setEqualBit();
 
+  	bool isGreaterBit();
+  	bool isLessBit();
+  	bool isEqualBit();
+
 
   	//opcode functions
-  	void LOAD();
-  	void LOADI();
-  	void STORE();
-  	void ADD();
-  	void ADDI();
-  	void ADDC();
-  	void ADDCI();
-  	void SUB();
-  	void SUBL();
-  	void SUBC();
-  	void SUBCI();
-  	void AND();
-  	void ANDI();
-  	void XOR();
-  	void XORI();
-  	void COMPL();
-  	void SHL();
-  	void SHLA();
-  	void SHR();
-  	void SHRA();
-  	void COMPR();
-  	void COMPRI();
-  	void GETSTAT();
-  	void PUTSTAT();
-  	void JUMP();
-  	void JUMPL();
-  	void JUMPE();
-  	void JUMPG();
-  	void CALL();
-  	void RETURN();
-  	void READ();
-  	void WRITE();
-  	void HALT();
-  	void NOOP();
+  	void LOAD(instruction &);
+  	void LOADI(instruction &);
+  	void STORE(instruction &);
+  	void ADD(instruction &);
+  	void ADDI(instruction &);
+  	void ADDC(instruction &);
+  	void ADDCI(instruction &);
+  	void SUB(instruction &);
+  	void SUBI(instruction &);
+  	void SUBL(instruction &);
+  	void SUBC(instruction &);
+  	void SUBCI(instruction &);
+  	void AND(instruction &);
+  	void ANDI(instruction &);
+  	void XOR(instruction &);
+  	void XORI(instruction &);
+  	void COMPL(instruction &);
+  	void SHL(instruction &);
+  	void SHLA(instruction &);
+  	void SHR(instruction &);
+  	void SHRA(instruction &);
+  	void COMPR(instruction &);
+  	void COMPRI(instruction &);
+  	void GETSTAT(instruction &);
+  	void PUTSTAT(instruction &);
+  	void JUMP(instruction &);
+  	void JUMPL(instruction &);
+  	void JUMPE(instruction &);
+  	void JUMPG(instruction &);
+  	void CALL(instruction &);
+  	void RETURN(instruction &);
+  	void READ(instruction &);
+  	void WRITE(instruction &);
+  	void HALT(instruction &);
+  	void NOOP(instruction &);
   	//end of instr functions
 
     public:
