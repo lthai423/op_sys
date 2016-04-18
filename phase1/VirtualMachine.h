@@ -35,7 +35,8 @@ class VirtualMachine{
 	int base;
 	int limit;
 	int __clock;
-	map <int, FP> instr;
+	map <int, FP> instr_0_immed;
+	map <int, FP> instr_1_immed;
         
 	//helper functions
   	void execute();
@@ -45,11 +46,9 @@ class VirtualMachine{
   	void setGreaterBit();
   	void setLessBit();
   	void setEqualBit();
-
   	bool isGreaterBit();
   	bool isLessBit();
   	bool isEqualBit();
-
 
   	//opcode functions
   	void LOAD(instruction &);

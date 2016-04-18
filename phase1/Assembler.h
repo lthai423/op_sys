@@ -22,6 +22,7 @@ class Assembler{
     public:
         Assembler(); //main logic
         // string sendFinalObjProg(); //sends catted final prog.o file
+        string FinalObjProg; //stores final produced after being appended to sequentially
 
     private:
         //internal "helper" functions
@@ -39,7 +40,6 @@ class Assembler{
         map <int, uint16_t> RD; //stores register destination values in decimal value - can apply for
                             //both formats' RD are in the same location
         map <int, uint16_t> RS; //stores source register in decimal value and immediate "flag"
-        string FinalObjProg; //stores final produced after being appended to sequentially
         array <uint16_t, 2> immediateConversion; //stores Immediate Register conversion - "flags" made to match
                                                                             // with array indices
         uint16_t RDestination; // Register Destination

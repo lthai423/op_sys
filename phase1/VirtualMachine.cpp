@@ -6,34 +6,47 @@ VirtualMachine::VirtualMachine(){
 	populateMemory(); //set base and limit in there
 
 	//start fetch-decode-execute cycle
-	while (pc < limit){
+	while (pc <= limit){
 	ir = mem[pc++]; //fetch
-	execute(); //
+	execute();
 	}
+
+	cout << endl << "R2: " << r[2] << endl;
 }
 
 void VirtualMachine::populateMemory(){
-	__clock = 0;
+	//initialize memory and registers
 	r = vector <uint16_t> (REG_FILE_SIZE);
 	mem = vector <uint16_t> (MEM_SIZE);
+
+	//open and populate memory
 	fstream prog;
 	prog.open("prog.o");
 	string line, temp;
 	istringstream iss;
 	getline(prog, line);
-	int i;
+	int i = 0;
 	while(!prog.eof()){
-	    iss >> temp; //ensures no whitespace
-	mem[i++] = (uint16_t)atoi(temp.c_str());
+		mem[i++] = (uint16_t)atoi(line.c_str());
+		getline(prog, line);
 	}
+
+	//set mem base and limits
 	base = 0;
 	limit = i;
-	//memory is now populated
+
+	//other
+	populateFunctionMap();
+	__clock = 0;
+	pc = 0;
 }
 
 void VirtualMachine::execute(){
-	instruction ins(ir); // make constructor with int as parameter
-	(this->*instr[ins.f1.OP])(ins);  // ==  (functionName)(); functionName.base == beginning addr in mem loc
+	instruction ins(ir); // include in class to optimize. repeated instantiations -> performance cost
+	if(ins.f1.I)
+		(this->*instr_1_immed[ins.f1.OP])(ins);  // ==  (functionName)(); functionName.base == beginning addr in mem loc
+	else
+		(this->*instr_0_immed[ins.f1.OP])(ins);
 	sr = 0;
 	__clock++;
 }
@@ -44,41 +57,54 @@ void VirtualMachine::setCarryBit(){
 }
 
 void VirtualMachine::setLessBit(){
-	sr = 8;
+	sr &= 17; // set less, equal, and greater bit to zero, AND w/ 010001 preserves overflow and carry bit.
+	sr |= 8;
 }
 
 void VirtualMachine::setEqualBit(){
-	sr = 4;
+	sr &= 17;
+	sr |= 4;
 }
 
 void VirtualMachine::setGreaterBit(){
-	sr = 2;
+	sr &= 17;
+	sr |= 2;
+}
+
+bool VirtualMachine::isLessBit(){
+	if ( sr & 8 == 8 )
+		return true;
+	return false;
+}
+
+bool VirtualMachine::isGreaterBit(){
+	if ( sr & 2 == 2)
+		return true;
+	return false;
+}
+
+bool VirtualMachine::isEqualBit(){
+	if ( sr & 4 == 4)
+		return true;
+	return false;
 }
 
 void VirtualMachine::populateFunctionMap(){
-    instr = {
+	instr_0_immed = {
         { 0 , &VirtualMachine::LOAD },
-        { 0 , &VirtualMachine::LOADI },
         { 1 , &VirtualMachine::STORE },
         { 2 , &VirtualMachine::ADD },
-        { 2 , &VirtualMachine::ADDI },
         { 3 , &VirtualMachine::ADDC },
-        { 3 , &VirtualMachine::ADDCI },
         { 4 , &VirtualMachine::SUB },
-        { 4 , &VirtualMachine::SUBI },
         { 5 , &VirtualMachine::SUBC },
-        { 5 , &VirtualMachine::SUBCI },
         { 6 , &VirtualMachine::AND },
-        { 6 , &VirtualMachine::ANDI },
         { 7 , &VirtualMachine::XOR },
-        { 7 , &VirtualMachine::XORI },
         { 8 , &VirtualMachine::COMPL },
         { 9 , &VirtualMachine::SHL },
         { 10 , &VirtualMachine::SHLA },
         { 11 , &VirtualMachine::SHR },
         { 12 , &VirtualMachine::SHRA },
         { 13 , &VirtualMachine::COMPR },
-        { 13 , &VirtualMachine::COMPRI },
         { 14 , &VirtualMachine::GETSTAT },
         { 15 , &VirtualMachine::PUTSTAT },
         { 16 , &VirtualMachine::JUMP },
@@ -91,15 +117,26 @@ void VirtualMachine::populateFunctionMap(){
         { 23 , &VirtualMachine::WRITE },
         { 24 , &VirtualMachine::HALT },
         { 25 , &VirtualMachine::NOOP }
+		
+	};
+    instr_1_immed = {
+        { 0 , &VirtualMachine::LOADI },
+        { 2 , &VirtualMachine::ADDI },
+        { 3 , &VirtualMachine::ADDCI },
+        { 4 , &VirtualMachine::SUBI },
+        { 5 , &VirtualMachine::SUBCI },
+        { 6 , &VirtualMachine::ANDI },
+        { 7 , &VirtualMachine::XORI },
+        { 13 , &VirtualMachine::COMPRI },
     };
 }
 
 void VirtualMachine::LOAD(instruction &ins){
-    r[ins.f2.RD] += mem[ins.f2.ADDR];
+    r[ins.f2.RD] = mem[ins.f2.ADDR];
 }
 
 void VirtualMachine::LOADI(instruction &ins){
-    r[ins.f3.RD] += ins.f3.CONST;
+    r[ins.f3.RD] = ins.f3.CONST;
 }
 
 void VirtualMachine::STORE(instruction &ins){
@@ -258,13 +295,14 @@ void VirtualMachine::READ(instruction &ins){
 	string line;
 	getline(prog, line);
 	r[ins.f1.RD] = (uint16_t)atoi(line.c_str());
+	prog.close();
 }
 
 void VirtualMachine::WRITE(instruction &ins){
-  ofstream ofs;
-  ofs.open ("VirtualMachine.out", ofstream::out);
-  ofs << static_cast<ostringstream*>( &(ostringstream() << ins.f1.RD) )->str();
-  ofs.close();
+	ofstream ofs;
+	ofs.open ("VirtualMachine.out", ofstream::out);
+	ofs << static_cast<ostringstream*>( &(ostringstream() << ins.f1.RD) )->str();
+	ofs.close();
 }
 
 void VirtualMachine::HALT(instruction &ins){
