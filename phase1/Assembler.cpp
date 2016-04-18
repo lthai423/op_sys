@@ -5,11 +5,12 @@
 using namespace std;
 
 Assembler::Assembler(){
-    fstream assemblyProg;
+    ifstream assemblyProg;
     assemblyProg.open("prog.s");
     initializeMemberFields();
     string line;
     getline(assemblyProg, line);
+    int i = 0; //remove after testing
     while(!assemblyProg.eof()){
         storeSNN(line);
         if ((opcodes[instruct_opcode])[1] == 0)
@@ -19,8 +20,12 @@ Assembler::Assembler(){
         else
             appendToFinal(returnFormat2_CONST());
         getline(assemblyProg, line);
+
     }
-    //close and write as "prog.o"
+    assemblyProg.close();
+    ofstream prog("prog.o", ofstream::out);
+    prog << FinalObjProg;
+    prog.close();
 
 }
 
@@ -76,7 +81,7 @@ void Assembler::storeSNN(string &SNN){
 
 void Assembler::appendToFinal(uint16_t instr){
     string castedString = static_cast<ostringstream*>( &(ostringstream() << instr) )->str();
-    FinalObjProg = castedString + "\n";
+    FinalObjProg = FinalObjProg + castedString + "\n";
 }
 
 void Assembler::initializeMemberFields(){

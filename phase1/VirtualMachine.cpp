@@ -11,13 +11,13 @@ VirtualMachine::VirtualMachine(){
 	execute();
 	}
 
-	cout << endl << "R2: " << r[2] << endl;
 }
 
 void VirtualMachine::populateMemory(){
 	//initialize memory and registers
 	r = vector <uint16_t> (REG_FILE_SIZE);
 	mem = vector <uint16_t> (MEM_SIZE);
+	pc = 0;
 
 	//open and populate memory
 	fstream prog;
@@ -25,20 +25,17 @@ void VirtualMachine::populateMemory(){
 	string line, temp;
 	istringstream iss;
 	getline(prog, line);
-	int i = 0;
 	while(!prog.eof()){
-		mem[i++] = (uint16_t)atoi(line.c_str());
+		mem[pc++] = (uint16_t)atoi(line.c_str());
 		getline(prog, line);
 	}
 
 	//set mem base and limits
-	base = 0;
-	limit = i;
+	limit = pc;
+	pc = base = __clock = 0;
 
 	//other
 	populateFunctionMap();
-	__clock = 0;
-	pc = 0;
 }
 
 void VirtualMachine::execute(){
@@ -57,7 +54,7 @@ void VirtualMachine::setCarryBit(){
 }
 
 void VirtualMachine::setLessBit(){
-	sr &= 17; // set less, equal, and greater bit to zero, AND w/ 010001 preserves overflow and carry bit.
+	sr &= 17; // set less, equal, and greater bit to zero, AND 010001 preserves state of overflow and carry bits.
 	sr |= 8;
 }
 
@@ -296,12 +293,13 @@ void VirtualMachine::READ(instruction &ins){
 	getline(prog, line);
 	r[ins.f1.RD] = (uint16_t)atoi(line.c_str());
 	prog.close();
+	cout << endl << r[ins.f1.RD] << endl;
 }
 
 void VirtualMachine::WRITE(instruction &ins){
 	ofstream ofs;
 	ofs.open ("VirtualMachine.out", ofstream::out);
-	ofs << static_cast<ostringstream*>( &(ostringstream() << ins.f1.RD) )->str();
+	ofs << static_cast<ostringstream*>( &(ostringstream() << r[ins.f1.RD]) )->str();
 	ofs.close();
 }
 
