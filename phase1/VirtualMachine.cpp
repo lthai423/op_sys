@@ -177,7 +177,7 @@ void VirtualMachine::SUBC(instruction &ins){
 }
 
 void VirtualMachine::SUBCI(instruction &ins){
- 	r[ins.f3.RD] = r[ins.f3.RD] - ins.f3.CONST - 1;
+    r[ins.f3.RD] = r[ins.f3.RD] - ins.f3.CONST - 1;
     setCarryBit();
 }
 
@@ -206,8 +206,13 @@ void VirtualMachine::SHL(instruction &ins){
 }
 
 void VirtualMachine::SHLA(instruction &ins){
-	if(r[ins.f1.RD] & 1 == 1)	
-		r[ins.f1.RD] &=
+	if(r[ins.f1.RD] & 1 == 1){
+		r[ins.f1.RD] <<= 1;
+		r[ins.f1.RD] |= 1;
+	}
+	else
+		r[ins.f1.RD] <<= 1;
+ 
 }
 
 void VirtualMachine::SHR(instruction &ins){
@@ -215,7 +220,12 @@ void VirtualMachine::SHR(instruction &ins){
 }
 
 void VirtualMachine::SHRA(instruction &ins){
-    //shift right arithmetic
+    if ( r[ins.f1.RD] >> 15 == 1 ){  //if 
+	r[ins.f1.RD] >>= 1;
+	r[ins.f1.RD] &= 32768;	
+    }
+    else
+	r[ins.f1.RD] >>= 1;
 }
 
 void VirtualMachine::COMPR(instruction &ins){
@@ -291,6 +301,8 @@ void VirtualMachine::RETURN(instruction &ins){
 void VirtualMachine::READ(instruction &ins){
 	fstream prog;
 	prog.open("VirtualMachine.in");
+	if (!prog.is_open())
+		exit(3);
 	string line;
 	getline(prog, line);
 	r[ins.f1.RD] = (uint16_t)atoi(line.c_str());
@@ -301,6 +313,8 @@ void VirtualMachine::READ(instruction &ins){
 void VirtualMachine::WRITE(instruction &ins){
 	ofstream ofs;
 	ofs.open ("VirtualMachine.out", ofstream::out);
+	if (!ofs.isopen())
+		exit(2);
 	ofs << static_cast<ostringstream*>( &(ostringstream() << r[ins.f1.RD]) )->str();
 	ofs.close();
 }
