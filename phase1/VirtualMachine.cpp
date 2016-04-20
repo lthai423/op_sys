@@ -22,6 +22,7 @@ void VirtualMachine::populateMemory(){
 	//open and populate memory
 	fstream prog;
 	prog.open("prog.o");
+	//check if its open
 	string line, temp;
 	istringstream iss;
 	getline(prog, line);
@@ -205,7 +206,8 @@ void VirtualMachine::SHL(instruction &ins){
 }
 
 void VirtualMachine::SHLA(instruction &ins){
-    //shift left arithmetic
+	if(r[ins.f1.RD] & 1 == 1)	
+		r[ins.f1.RD] &=
 }
 
 void VirtualMachine::SHR(instruction &ins){

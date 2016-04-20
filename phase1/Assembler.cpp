@@ -51,14 +51,14 @@ uint16_t Assembler::returnFormat2_ADDR(){
     uint16_t currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-10
     uint16_t destRegister = RD[RDestination];
     uint16_t immediate = 256; //#
-    return currentOpcode + destRegister + immediate + ADDR_or_CONST;
+    return currentOpcode + destRegister + immediate + immediate + ADDR_or_CONST;
 }
 
 uint16_t Assembler::returnFormat2_CONST(){
     uint16_t currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-10
     uint16_t destRegister = RD[RDestination];
     uint16_t immediate = 256; //#
-    return currentOpcode + destRegister + immediate + ADDR_or_CONST;
+    return currentOpcode + destRegister + immediate + immediate + ADDR_or_CONST;
 }
 
 void Assembler::storeSNN(string &SNN){
@@ -142,4 +142,5 @@ void Assembler::initializeMemberFields(){
     isOneNum = false;
 
 }
+
 
