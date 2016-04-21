@@ -12,7 +12,7 @@ class VirtualMachine;
 #include <sstream> //std:: istringstream, std::ostringstream
 #include <fstream> // std::fstream
 #include <stdlib.h>  // std::atoi
-#include <stdint.h> // std::uint16_t
+#include <stdint.h> // std::unsigned
 #include "union.h" // facilitates parsing of prog.o
 #include <vector>
 
@@ -26,17 +26,17 @@ class VirtualMachine{
 	//member fields required for VM
 	static const int REG_FILE_SIZE = 4;
 	static const int MEM_SIZE = 256;
-	vector <uint16_t> r;
-	vector <uint16_t> mem;
+	vector <unsigned> r;
+	vector <unsigned> mem;
 	int pc;
-	uint16_t ir;
-	uint16_t sr;
+	unsigned ir;
+	unsigned sr;
 	int sp;
 	int base;
 	int limit;
 	int __clock;
-	map <int, FP> instr_0_immed;
-	map <int, FP> instr_1_immed;
+	map <unsigned, FP> instr_0_immed;
+	map <unsigned, FP> instr_1_immed;
         
 	//helper functions
   	void execute();
