@@ -4,33 +4,34 @@
 
 #include <iostream>
 //#include <iomanip>
+#include <stdint.h>
 
 using namespace std;
 
 class format1 {
 	public:
-		unsigned UNUSED:6;
-		unsigned RS:2;
-		unsigned I:1;
-		unsigned RD:2;
-		unsigned OP:5;
+		uint16_t UNUSED:6;
+		uint16_t RS:2;
+		uint16_t I:1;
+		uint16_t RD:2;
+		uint16_t OP:5;
 	};
 
 class format2 {
 	public:
-		unsigned ADDR:8;
-		unsigned I:1;
-		unsigned RD:2;
-		unsigned OP:5;
+		uint16_t ADDR:8;
+		uint16_t I:1;
+		uint16_t RD:2;
+		uint16_t OP:5;
 	};
 
 
 class format3 {
 	public:
 		int CONST:8;
-		unsigned I:1;
-		unsigned RD:2;
-		unsigned OP:5;
+		uint16_t I:1;
+		uint16_t RD:2;
+		uint16_t OP:5;
 
 	};
 
@@ -39,7 +40,8 @@ union instruction {
 	format1 f1;
 	format2 f2;
 	format3 f3;
-	instruction(int instr){
+	
+	instruction(int instr){ //constructor
 		i = instr;
 	}
 };
