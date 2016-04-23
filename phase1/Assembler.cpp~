@@ -121,6 +121,19 @@ void Assembler::initializeMemberFields(){
         { "halt", {{24,0}} },
         { "noop", {{25,0}} }
     };
+    RD = {
+        { 0 , 0 },
+        { 1 , 512 },
+        { 2 , 1024 },
+        { 3 , 1536 }
+    };
+
+    RS = {
+        { 0 , 0 },
+        { 1 , 64 },
+        { 2 , 128 },
+        { 3 , 192 }
+    };
 
     immediateConversion = { 0 , 256 };
 
