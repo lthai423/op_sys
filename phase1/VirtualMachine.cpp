@@ -11,7 +11,6 @@ VirtualMachine::VirtualMachine(){
     	execute();
         if (i > 100)
             exit(0);
-        cout << endl << i++ << endl;
 	}
 
 }
@@ -36,7 +35,6 @@ void VirtualMachine::populateMemory(){
 
 	//set mem base and limits
 	limit = pc;
-    cout << " Limit is :    " << limit << endl;
 	pc = base = __clock = 0;
     sp = 255;
 
@@ -45,12 +43,16 @@ void VirtualMachine::populateMemory(){
 
 void VirtualMachine::execute(){
 	instruction ins(ir); // include in class to optimize. repeated instantiations -> performance cost
-    cout << endl << "execute   " << ins.f1.OP << "   " << ins.i << "  " << ins.f1.I << "  pc:  " << pc << endl;
-	if(ins.f1.I)
+    cout << ins.i << endl;
+    cout << ins.f1.OP << " " << ins.f1.RD << " " << ins.f1.I << " " << ins.f1.RS << " " << ins.f1.UNUSED << endl;
+    cout << ins.f2.OP << " " << ins.f2.RD << " " << ins.f2.I << " " << ins.f2.ADDR << endl;
+    cout << ins.f3.OP << " " << ins.f3.RD << " " << ins.f3.I << " " << ins.f3.CONST << endl;	
+    if(ins.f1.I)
 		(this->*instr_1_immed[ins.f1.OP])(ins);  // ==  (functionName)(); functionName.base == beginning addr in mem loc
 	else
 		(this->*instr_0_immed[ins.f1.OP])(ins);
-    cout << endl << "where are you " << endl;
+
+    cout << "PC:  " << pc <<  "   r[0]    " << r[0] << "   r[1]   " << r[1] << "  r[2]  " << r[2] << endl<< endl;
 	sr = 0;
 }
 
@@ -168,9 +170,10 @@ void VirtualMachine::ADDI(instruction &ins){
         setCarryBit();
         r[ins.f3.RD] &= 65535;
     }
-    else if ((~r[ins.f3.RD] + 1) > 131070){
+    else if ((~r[ins.f3.RD] + 1) > 65535 && (~r[ins.f3.RD] + 1 ) < 131070){
         setCarryBit();
         r[ins.f3.RD] = -65535;
+        cout << endl << "second else if  " << endl;
     }
 
     __clock++;
@@ -335,7 +338,6 @@ void VirtualMachine::JUMPG(instruction &ins){
 
 void VirtualMachine::CALL(instruction &ins){
 	//push VM status
-    cout << endl << "before call" << endl;
 	mem[sp--] = sr;
 	mem[sp--] = ir;
 	mem[sp--] = r[0];
@@ -343,27 +345,21 @@ void VirtualMachine::CALL(instruction &ins){
 	mem[sp--] = r[2];
 	mem[sp--] = r[3];
 	mem[sp--] = pc;
-    cout << endl << "inside CALL" << endl;
 
 	//jump to new location in mem
     pc = ins.f2.ADDR;
-    cout << "finished with CALL instruction" << endl;
 }
 
 void VirtualMachine::RETURN(instruction &ins){
 	//pull VM status
-    cout << endl << "  before return starts:  " << endl;
+    ++sp; //sp is pointing at free space, ready to push status.  need to bring back up to current head before assignments
 	pc = mem[sp++];
-        cout << endl << " pc is :  "  << pc << endl;
-
 	r[3] = mem[sp++];
 	r[2] = mem[sp++];
 	r[1] = mem[sp++];
 	r[0] = mem[sp++];
-    cout << endl << " pc is :  "  << pc << endl;
 	ir = mem[sp++];
 	sr = mem[sp++];
-    cout << endl << " inside return:  " << endl;
 }
 
 void VirtualMachine::READ(instruction &ins){
@@ -375,6 +371,7 @@ void VirtualMachine::READ(instruction &ins){
 	getline(prog, line);
 	r[ins.f1.RD] = (unsigned)atoi(line.c_str()); //effecient method for string to int cast
 	prog.close();
+    cout << endl << r[ins.f1.RD] << endl;
 }
 
 void VirtualMachine::WRITE(instruction &ins){
@@ -382,9 +379,8 @@ void VirtualMachine::WRITE(instruction &ins){
 	ofs.open ("VirtualMachine.out", ofstream::out);
 	if (!ofs.is_open())
 		exit(2);
-	ofs << static_cast<ostringstream*>( &(ostringstream() << r[ins.f1.RD]) )->str(); //an effecient method for string casting
+	ofs << to_string(r[ins.f1.RD]); //an effecient method for string casting
 	ofs.close();
-    cout << endl << "inside write" << endl;
 }
 
 void VirtualMachine::HALT(instruction &ins){

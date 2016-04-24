@@ -93,7 +93,7 @@ void Assembler::storeSNN(string &SNN){
 }
 
 void Assembler::appendToFinal(instruction &ins){
-    string castedString = static_cast<ostringstream*>( &(ostringstream() << ins.i) )->str();
+    string castedString = to_string(ins.i);
     FinalObjProg = FinalObjProg + castedString + "\n";
 }
 
