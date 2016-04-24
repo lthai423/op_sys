@@ -7,60 +7,73 @@ using namespace std;
 Assembler::Assembler(){
     ifstream assemblyProg;
     assemblyProg.open("prog.s");
+    if (!assemblyProg.is_open())
+        exit(0);
     initializeMemberFields();
     string line;
     getline(assemblyProg, line);
-    int i = 0; //remove after testing
+    instruction ins = instruction(0);
     while(!assemblyProg.eof()){
         storeSNN(line);
         if ((opcodes[instruct_opcode])[1] == 0)
-            appendToFinal(returnFormat1());
+            setFormat1(ins);
         else if ((opcodes[instruct_opcode])[1] == 1)
-            appendToFinal(returnFormat2_ADDR());
+            setFormat2_ADDR(ins);
+        else if ((opcodes[instruct_opcode])[1] == 2)
+            setFormat2_CONST(ins);
         else
-            appendToFinal(returnFormat2_CONST());
+            setFormat3(ins);
+        appendToFinal(ins);
         getline(assemblyProg, line);
-
+        ins.i = 0;
     }
+    //close first
     assemblyProg.close();
-    ofstream prog("prog.o", ofstream::out);
-    prog << FinalObjProg;
-    prog.close();
+
+    //open/close and output program
+    ofstream assembledProg;
+    assembledProg.open ("prog.o", ofstream::out);
+    if (!assembledProg.is_open())
+        exit(2);
+    assembledProg << FinalObjProg;
+    assembledProg.close();
 
 }
 
-uint16_t Assembler::returnFormat1(){
-    uint16_t currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-11
+void Assembler::setFormat1(instruction &ins){
+    ins.f1.OP = opcodes[instruct_opcode][0];   
+    ins.f1.RD = first_num;
+    ins.f1.RS = second_num;
 
-    if (isOneNum){
-        uint16_t destRegister = RD[RDestination];//bits 10-9
-        // rest are dont cares
-        return currentOpcode + destRegister ;  //SR bits 7-6 and unused bits 5-0 are don't cares
+    //defaulted to zero already, might remove
+    ins.f1.I = 0;
+    if (instruct_opcode == "halt"){
     }
-    else{
-        uint16_t destRegister = RD[RDestination]; //bits 10-9
-        uint16_t sourceRegister = RS[ADDR_or_CONST]; //bits 7-6
-        // bits 5-0 unused
-
-        return currentOpcode + destRegister + sourceRegister;
-    }
 
 }
 
-uint16_t Assembler::returnFormat2_ADDR(){
-    uint16_t currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-10
-    uint16_t destRegister = RD[RDestination];
-    uint16_t immediate = 256; //#
-    return currentOpcode + destRegister + immediate + immediate + ADDR_or_CONST;
+void Assembler::setFormat2_CONST(instruction &ins){
+    ins.f3.OP = opcodes[instruct_opcode][0];
+    ins.f3.RD = first_num;
+    ins.f3.CONST = second_num;
+    ins.f3.I = 1;
+
 }
 
-uint16_t Assembler::returnFormat2_CONST(){
-    uint16_t currentOpcode = (opcodes[instruct_opcode][0]); //bits 15-10
-    uint16_t destRegister = RD[RDestination];
-    uint16_t immediate = 256; //#
-    return currentOpcode + destRegister + immediate + immediate + ADDR_or_CONST;
+void Assembler::setFormat2_ADDR(instruction &ins){
+    ins.f2.OP = opcodes[instruct_opcode][0];
+    ins.f2.RD = first_num;
+    ins.f2.ADDR = second_num;
+    if (instruct_opcode != "load")
+        ins.f2.I = 1;
+
 }
 
+void Assembler::setFormat3(instruction &ins){
+    ins.f2.OP = opcodes[instruct_opcode][0];
+    ins.f2.ADDR = first_num;
+    ins.f2.I = 1;
+}
 void Assembler::storeSNN(string &SNN){
     istringstream iss(SNN);
     int i = 0;
@@ -69,18 +82,18 @@ void Assembler::storeSNN(string &SNN){
         if (i == 0)
             instruct_opcode = temp;
         else if (i == 1)
-            RDestination = (uint16_t)atoi(temp.c_str());  //cast into 16 bit unsigned integer
+            first_num = (uint16_t)atoi(temp.c_str());  //cast into 16 bit unsigned integer
         else
-            ADDR_or_CONST = (uint16_t)atoi(temp.c_str());
+            second_num = (uint16_t)atoi(temp.c_str());
         i++;
-    } 
-    if (i == 1) //ensure that num_2 is set out of bounds if there is only one value
-        ADDR_or_CONST = -129; 
-        isOneNum = true;
+    }
+    if ( i == 1)
+        first_num = second_num = 0; //zero out for one word opcode.
+
 }
 
-void Assembler::appendToFinal(uint16_t instr){
-    string castedString = static_cast<ostringstream*>( &(ostringstream() << instr) )->str();
+void Assembler::appendToFinal(instruction &ins){
+    string castedString = static_cast<ostringstream*>( &(ostringstream() << ins.i) )->str();
     FinalObjProg = FinalObjProg + castedString + "\n";
 }
 
@@ -88,59 +101,46 @@ void Assembler::initializeMemberFields(){
     opcodes = {
         { "load", {{0,1}} },
         { "loadi", {{0,2}} },
-        { "store", {{2048,1}} },
-        { "add", {{4096,0}} },
-        { "addi", {{4096,2}} },
-        { "addc", {{6144,0}} },
-        { "addci", {{6144,2}} },
-        { "sub", {{8192,0}} },
-        { "subi", {{8192,2}} },
-        { "subc", {{10240,0}} },
-        { "subci", {{10240,2}} },
-        { "and", {{12248,0}} },
-        { "andi", {{12248,2}} },
-        { "xor", {{14336,0}} },
-        { "xori", {{14336,2}} },
-        { "compl", {{16384,0}} },
-        { "shl", {{18432,0}} },
-        { "shla", {{20480,0}} },
-        { "shr", {{22528,0}} },
-        { "shra", {{24576,0}} },
-        { "compr", {{26624,0}} },
-        { "compri", {{26624,2}} },
-        { "getstat", {{28672,0}} },
-        { "putstat", {{30720,0}} },
-        { "jump", {{32768,1}} },
-        { "jumpl", {{34816,1}} },
-        { "jumpe", {{36864,1}} },
-        { "jumpg", {{38912,1}} },
-        { "call", {{40960,1}} },
-        { "return", {{43008,0}} },
-        { "read", {{45056,0}} },
-        { "write", {{47104,0}} },
-        { "halt", {{49152,0}} },
-        { "noop", {{51200,0}} }
-    };
-    RD = {
-        { 0 , 0 },
-        { 1 , 512 },
-        { 2 , 1024 },
-        { 3 , 1536 }
+        { "store", {{1,1}} },
+        { "add", {{2,0}} },
+        { "addi", {{2,2}} },
+        { "addc", {{3,0}} },
+        { "addci", {{3,2}} },
+        { "sub", {{4,0}} },
+        { "subi", {{4,2}} },
+        { "subc", {{5,0}} },
+        { "subci", {{5,2}} },
+        { "and", {{6,0}} },
+        { "andi", {{6,2}} },
+        { "xor", {{7,0}} },
+        { "xori", {{7,2}} },
+        { "compl", {{8,0}} },
+        { "shl", {{9,0}} },
+        { "shla", {{10,0}} },
+        { "shr", {{11,0}} },
+        { "shra", {{12,0}} },
+        { "compr", {{13,0}} },
+        { "compri", {{13,2}} },
+        { "getstat", {{14, 0}} },
+        { "putstat", {{15,0}} },
+        { "jump", {{16,3}} },
+        { "jumpl", {{17,3}} },
+        { "jumpe", {{18,3}} },
+        { "jumpg", {{19,3}} },
+        { "call", {{20,3}} },
+        { "return", {{21,0}} },
+        { "read", {{22,0}} },
+        { "write", {{23,0}} },
+        { "halt", {{24,0}} },
+        { "noop", {{25,0}} }
+
     };
 
-    RS = {
-        { 0 , 0 },
-        { 1 , 64 },
-        { 2 , 128 },
-        { 3 , 192 }
-    };
-
-    immediateConversion = { 0 , 256 };
-
-    RDestination = -9999; //defaulted to out of bound values
-    ADDR_or_CONST = -9999;
-    isOneNum = false;
+    first_num = -9999; //defaulted to out of bound values
+    second_num = -9999;
 
 }
 
-
+void Assembler::printContent(){
+    cout << endl << FinalObjProg << endl;
+}

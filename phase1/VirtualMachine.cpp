@@ -4,11 +4,14 @@ using namespace std;
 
 VirtualMachine::VirtualMachine(){
 	populateMemory(); //set base and limit in there
-
+    int i = 0;
 	//start fetch-decode-execute cycle
-	while (pc <= limit){
-	ir = mem[pc++]; //fetch
-	execute();
+	while (pc != limit){
+    	ir = mem[pc++]; //fetch
+    	execute();
+        if (i > 100)
+            exit(0);
+        cout << endl << i++ << endl;
 	}
 
 }
@@ -33,17 +36,21 @@ void VirtualMachine::populateMemory(){
 
 	//set mem base and limits
 	limit = pc;
+    cout << " Limit is :    " << limit << endl;
 	pc = base = __clock = 0;
+    sp = 255;
 
 	populateFunctionMap();
 }
 
 void VirtualMachine::execute(){
 	instruction ins(ir); // include in class to optimize. repeated instantiations -> performance cost
+    cout << endl << "execute   " << ins.f1.OP << "   " << ins.i << "  " << ins.f1.I << "  pc:  " << pc << endl;
 	if(ins.f1.I)
 		(this->*instr_1_immed[ins.f1.OP])(ins);  // ==  (functionName)(); functionName.base == beginning addr in mem loc
 	else
 		(this->*instr_0_immed[ins.f1.OP])(ins);
+    cout << endl << "where are you " << endl;
 	sr = 0;
 }
 
@@ -89,7 +96,6 @@ bool VirtualMachine::isEqualBit(){
 void VirtualMachine::populateFunctionMap(){
 	instr_0_immed = {
         { 0 , &VirtualMachine::LOAD },
-        { 1 , &VirtualMachine::STORE },
         { 2 , &VirtualMachine::ADD },
         { 3 , &VirtualMachine::ADDC },
         { 4 , &VirtualMachine::SUB },
@@ -104,20 +110,16 @@ void VirtualMachine::populateFunctionMap(){
         { 13 , &VirtualMachine::COMPR },
         { 14 , &VirtualMachine::GETSTAT },
         { 15 , &VirtualMachine::PUTSTAT },
-        { 16 , &VirtualMachine::JUMP },
-        { 17 , &VirtualMachine::JUMPL },
-        { 18 , &VirtualMachine::JUMPE },
-        { 19 , &VirtualMachine::JUMPG },
-        { 20 , &VirtualMachine::CALL },
         { 21 , &VirtualMachine::RETURN },
         { 22 , &VirtualMachine::READ },
         { 23 , &VirtualMachine::WRITE },
         { 24 , &VirtualMachine::HALT },
         { 25 , &VirtualMachine::NOOP }
-		
-	};
+        
+    };
     instr_1_immed = {
         { 0 , &VirtualMachine::LOADI },
+        { 1 , &VirtualMachine::STORE },
         { 2 , &VirtualMachine::ADDI },
         { 3 , &VirtualMachine::ADDCI },
         { 4 , &VirtualMachine::SUBI },
@@ -125,6 +127,12 @@ void VirtualMachine::populateFunctionMap(){
         { 6 , &VirtualMachine::ANDI },
         { 7 , &VirtualMachine::XORI },
         { 13 , &VirtualMachine::COMPRI },
+        { 16 , &VirtualMachine::JUMP },
+        { 17 , &VirtualMachine::JUMPL },
+        { 18 , &VirtualMachine::JUMPE },
+        { 19 , &VirtualMachine::JUMPG },
+        { 20 , &VirtualMachine::CALL }
+
     };
 }
 
@@ -145,53 +153,91 @@ void VirtualMachine::STORE(instruction &ins){
 
 
 void VirtualMachine::ADD(instruction &ins){
-    cout << endl << "RD:  " << r[ins.f1.RD] << endl << "RS:  " << r[ins.f1.RS] << endl;
     r[ins.f1.RD] += r[ins.f1.RS];
-    cout << endl << "RD:  " << r[ins.f1.RD] << endl << "RS:  " << r[ins.f1.RS] << endl;
-    setCarryBit();
+    if (r[ins.f1.RD] > 65535){
+        setCarryBit();
+        //r[ins.f1.RD] &= 65535;
+    }
+
     __clock++;
 }
 
 void VirtualMachine::ADDI(instruction &ins){
     r[ins.f3.RD] += ins.f3.CONST;
-    setCarryBit();
+    if ( r[ins.f3.RD] > 65535 && r[ins.f3.RD] < 131070){
+        setCarryBit();
+        r[ins.f3.RD] &= 65535;
+    }
+    else if ((~r[ins.f3.RD] + 1) > 131070){
+        setCarryBit();
+        r[ins.f3.RD] = -65535;
+    }
+
     __clock++;
 }
 
 void VirtualMachine::ADDC(instruction &ins){
-    r[ins.f1.RD] = r[ins.f1.RD] + r[ins.f1.RS] + 1;
-    setCarryBit();
+    r[ins.f1.RD] = r[ins.f1.RD] + r[ins.f1.RS] + (sr & 1);
+    if ( r[ins.f3.RD] > 65535 && r[ins.f3.RD] < 131070){
+        setCarryBit();
+        r[ins.f3.RD] &= 65535;
+    }
+    else if ((~r[ins.f3.RD] + 1) >= 131070){
+        setCarryBit();
+        r[ins.f3.RD] = -65535;
+    }
     __clock++;
 }
 
 void VirtualMachine::ADDCI(instruction &ins){
-    r[ins.f3.RD] = r[ins.f3.RD] + r[ins.f3.CONST] + 1;
-    setCarryBit();
+    r[ins.f3.RD] = r[ins.f3.RD] + r[ins.f3.CONST] + (sr & 1);
+    if ( r[ins.f3.RD] > 65535 && r[ins.f3.RD] < 131070){
+        setCarryBit();
+        r[ins.f3.RD] &= 65535;
+    }
+    else if ((~r[ins.f3.RD] + 1) > 131070){
+        setCarryBit();
+        r[ins.f3.RD] = -65535;
+    }
     __clock++;
 }
 
 void VirtualMachine::SUB(instruction &ins){
     r[ins.f1.RD] -= r[ins.f1.RS];
-    setCarryBit();
+    if ( r[ins.f3.RD] > 65535 && r[ins.f3.RD] < 131070){
+        setCarryBit();
+        r[ins.f3.RD] &= 65535;
+    }
+    else if ((~r[ins.f3.RD] + 1) > 131070){
+        setCarryBit();
+        r[ins.f3.RD] = -65535;
+    }
+
     __clock++;
 }
 
 
 void VirtualMachine::SUBI(instruction &ins){
     r[ins.f3.RD] -= ins.f3.CONST;
-    setCarryBit();
+    if ((~r[ins.f3.RD] + 1 ) > 65535)
+        setCarryBit();
+
     __clock++;
 }
 
 void VirtualMachine::SUBC(instruction &ins){
-    r[ins.f1.RD] = r[ins.f1.RD] - r[ins.f1.RS] - 1;
-    setCarryBit();
+    r[ins.f1.RD] = r[ins.f1.RD] - r[ins.f1.RS] - (sr & 1);
+    if ((~r[ins.f3.RD] + 1 ) > 65535)
+        setCarryBit();
+    
     __clock++;
 }
 
 void VirtualMachine::SUBCI(instruction &ins){
-    r[ins.f3.RD] = r[ins.f3.RD] - ins.f3.CONST - 1;
-    setCarryBit();
+    r[ins.f3.RD] = r[ins.f3.RD] - ins.f3.CONST - (sr & 1);
+    if ((~r[ins.f3.RD] + 1) > 65535)
+        setCarryBit();
+    
     __clock++;
 }
 
@@ -289,6 +335,7 @@ void VirtualMachine::JUMPG(instruction &ins){
 
 void VirtualMachine::CALL(instruction &ins){
 	//push VM status
+    cout << endl << "before call" << endl;
 	mem[sp--] = sr;
 	mem[sp--] = ir;
 	mem[sp--] = r[0];
@@ -296,20 +343,27 @@ void VirtualMachine::CALL(instruction &ins){
 	mem[sp--] = r[2];
 	mem[sp--] = r[3];
 	mem[sp--] = pc;
+    cout << endl << "inside CALL" << endl;
 
 	//jump to new location in mem
     pc = ins.f2.ADDR;
+    cout << "finished with CALL instruction" << endl;
 }
 
 void VirtualMachine::RETURN(instruction &ins){
 	//pull VM status
-	pc = mem[pc++];
-	r[3] = mem[pc++];
-	r[2] = mem[pc++];
-	r[1] = mem[pc++];
-	r[0] = mem[pc++];
-	ir = mem[pc++];
-	sr = (uint8_t)mem[pc++];
+    cout << endl << "  before return starts:  " << endl;
+	pc = mem[sp++];
+        cout << endl << " pc is :  "  << pc << endl;
+
+	r[3] = mem[sp++];
+	r[2] = mem[sp++];
+	r[1] = mem[sp++];
+	r[0] = mem[sp++];
+    cout << endl << " pc is :  "  << pc << endl;
+	ir = mem[sp++];
+	sr = mem[sp++];
+    cout << endl << " inside return:  " << endl;
 }
 
 void VirtualMachine::READ(instruction &ins){
@@ -321,7 +375,6 @@ void VirtualMachine::READ(instruction &ins){
 	getline(prog, line);
 	r[ins.f1.RD] = (unsigned)atoi(line.c_str()); //effecient method for string to int cast
 	prog.close();
-	cout << endl << r[ins.f1.RD] << endl;
 }
 
 void VirtualMachine::WRITE(instruction &ins){
@@ -331,6 +384,7 @@ void VirtualMachine::WRITE(instruction &ins){
 		exit(2);
 	ofs << static_cast<ostringstream*>( &(ostringstream() << r[ins.f1.RD]) )->str(); //an effecient method for string casting
 	ofs.close();
+    cout << endl << "inside write" << endl;
 }
 
 void VirtualMachine::HALT(instruction &ins){

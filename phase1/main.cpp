@@ -4,6 +4,6 @@
 using namespace std;
 
 int main(){
-	Assembler Assemb;
-	VirtualMachine VM;
+	Assembler assemble;
+	VirtualMachine vm;
 }

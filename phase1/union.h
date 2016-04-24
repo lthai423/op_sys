@@ -40,10 +40,10 @@ union instruction {
 	format1 f1;
 	format2 f2;
 	format3 f3;
-	
-	instruction(int instr){ //constructor
-		i = instr;
+	instruction(int i){
+		this -> i = i;
 	}
+
 };
 
 #endif
