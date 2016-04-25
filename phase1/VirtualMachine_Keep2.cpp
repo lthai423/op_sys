@@ -43,16 +43,11 @@ void VirtualMachine::populateMemory(){
 
 void VirtualMachine::execute(){
 	instruction ins(ir); // include in class to optimize. repeated instantiations -> performance cost
-    cout << ins.i << endl;
-    cout << ins.f1.OP << " " << ins.f1.RD << " " << ins.f1.I << " " << ins.f1.RS << " " << ins.f1.UNUSED << endl;
-    cout << ins.f2.OP << " " << ins.f2.RD << " " << ins.f2.I << " " << ins.f2.ADDR << endl;
-    cout << ins.f3.OP << " " << ins.f3.RD << " " << ins.f3.I << " " << ins.f3.CONST << endl;	
     if(ins.f1.I)
 		(this->*instr_1_immed[ins.f1.OP])(ins);  // ==  (functionName)(); functionName.base == beginning addr in mem loc
 	else
 		(this->*instr_0_immed[ins.f1.OP])(ins);
 
-    cout << "PC:  " << pc <<  "   r[0]    " << r[0] << "   r[1]   " << r[1] << "  r[2]  " << r[2] << "  r[3]  " << r[3] << endl<< endl;
 }
 
 
@@ -63,7 +58,6 @@ void VirtualMachine::setCarryBit(){
 void VirtualMachine::setLessBit(){
 	sr &= ~8; // set less, equal, and greater bit to zero, AND 010001 preserves state of overflow and carry bits.
 	sr |= 8;
-    cout << endl << " set less bit  " << sr << endl;
 }
 
 
@@ -75,7 +69,6 @@ void VirtualMachine::setEqualBit(){
 void VirtualMachine::setGreaterBit(){
 	sr &= ~2;
 	sr |= 2;
-    cout << endl << "setGreaterBit   " << sr << endl;
 }
 
 bool VirtualMachine::isLessBit(){
@@ -85,17 +78,15 @@ bool VirtualMachine::isLessBit(){
 }
 
 bool VirtualMachine::isGreaterBit(){
-    cout << endl << "SR   "  << sr << endl;
+
 	if ( (sr & 2) == 2){
 		return true;
-        cout << endl << "true" << endl;
     }
 	return false;
 }
 
 bool VirtualMachine::isEqualBit(){
 	if ( (sr & 4) == 4){
-		cout << endl << sr << "  is EQUAL " << endl;
         return true;
     }
 	return false;
@@ -151,9 +142,6 @@ void VirtualMachine::zeroCarryBit(){
 void VirtualMachine::LOAD(instruction &ins){
     r[ins.f2.RD] = mem[ins.f2.ADDR];
     __clock += 4;
-    cout << endl << "exit LOAD" << endl;
-
-    __clock += 4;
 
 }
 
@@ -161,14 +149,11 @@ void VirtualMachine::LOADI(instruction &ins){
     r[ins.f3.RD] = ins.f3.CONST;
     __clock += 4;
 
-    cout << endl << "exit LOADI" << endl;
 }
 
 void VirtualMachine::STORE(instruction &ins){
-    cout << endl << "mem  "  << ins.f2.ADDR << "   " << r[ins.f2.RD] << endl;
     mem[ins.f2.ADDR] = r[ins.f2.RD];
     __clock += 4;
-    cout << endl << "exit STORE   " << mem[ins.f2.ADDR] << endl;
 
 }
 
@@ -195,7 +180,6 @@ void VirtualMachine::ADDI(instruction &ins){
     else if ((~r[ins.f3.RD] + 1) > 65535 && (~r[ins.f3.RD] + 1 ) < 131070){
         setCarryBit();
         r[ins.f3.RD] = -65535;
-        cout << endl << "second else if  " << endl;
     }
     else{
         zeroCarryBit();
@@ -262,8 +246,6 @@ void VirtualMachine::SUBI(instruction &ins){
         zeroCarryBit();
     }
 
-    cout << endl << "exit SUBI" << endl;
-
     __clock++;
 }
 
@@ -298,8 +280,6 @@ void VirtualMachine::ANDI(instruction &ins){
     r[ins.f3.RD] &= ins.f3.CONST;
     __clock++;
 
-    cout << endl << "exit ANDI" << endl;
-
 }
 
 void VirtualMachine::XOR(instruction &ins){
@@ -320,7 +300,6 @@ void VirtualMachine::COMPL(instruction &ins){
 void VirtualMachine::SHL(instruction &ins){
     r[ins.f1.RD] <<= 1;
     __clock++;
-    cout << endl << "exit SHL" << endl;
 
 }
 
@@ -378,7 +357,6 @@ void VirtualMachine::COMPRI(instruction &ins){
         setGreaterBit();
 
     __clock++;
-   cout << endl << "exit COMPRI" << endl;
 
 }
 
@@ -386,7 +364,6 @@ void VirtualMachine::GETSTAT(instruction &ins){
     r[ins.f1.RD] = sr;
     __clock++;
 
-    cout << endl << "exit getstat" << endl;
 
 }
 
@@ -409,12 +386,10 @@ void VirtualMachine::JUMPL(instruction &ins){
 void VirtualMachine::JUMPE(instruction &ins){
     if(isEqualBit())
         pc = ins.f2.ADDR;
-    cout << endl <<  "JUMPE" << endl;
     __clock++;
 }
 
 void VirtualMachine::JUMPG(instruction &ins){
-    cout << endl << " exit JUMPG" << endl;
 	if(isGreaterBit())
         pc = ins.f2.ADDR;
     __clock++;
@@ -433,7 +408,6 @@ void VirtualMachine::CALL(instruction &ins){
 	//jump to new location in mem
     pc = ins.f2.ADDR;
     __clock += 4;
-    cout << "inside call " << endl;
 }
 
 void VirtualMachine::RETURN(instruction &ins){
@@ -448,7 +422,6 @@ void VirtualMachine::RETURN(instruction &ins){
 	sr = mem[sp];
     __clock += 4;
 
-    cout << endl << "exit RETURN" << endl;
 
 }
 
@@ -464,9 +437,6 @@ void VirtualMachine::READ(instruction &ins){
 
     __clock += 28;
 
-    cout << endl << r[ins.f1.RD] << endl;
-
-    cout << endl << "exit read" << endl;
 
 }
 
@@ -480,9 +450,6 @@ void VirtualMachine::WRITE(instruction &ins){
     
     __clock += 28;
 
-    cout << endl << "did it" << endl;
-    cout << endl << "exit WRITE" << endl;
-
 }
 
 void VirtualMachine::HALT(instruction &ins){
@@ -493,15 +460,11 @@ void VirtualMachine::HALT(instruction &ins){
         exit(4);
     ofs << __clock;
     ofs.close();
-    cout << endl << "exit HALT" << endl;
-
     exit(0);
 }
 
 void VirtualMachine::NOOP(instruction &ins){
     __clock++;
-    cout << endl << "exit NOOP" << endl;
-
 	void(0);
 }
 
