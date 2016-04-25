@@ -4,14 +4,12 @@ using namespace std;
 
 VirtualMachine::VirtualMachine(){
 	populateMemory(); //set base and limit in there
-    int i = 0;
 	//start fetch-decode-execute cycle
 	while (pc != limit){
     	ir = mem[pc++]; //fetch
     	execute();
-        if (i > 100)
-            exit(0);
-	}
+    	}
+    cout << "yues this is current" << endl;
 
 }
 
@@ -52,8 +50,7 @@ void VirtualMachine::execute(){
 	else
 		(this->*instr_0_immed[ins.f1.OP])(ins);
 
-    cout << "PC:  " << pc <<  "   r[0]    " << r[0] << "   r[1]   " << r[1] << "  r[2]  " << r[2] << endl<< endl;
-	sr = 0;
+    cout << "PC:  " << pc <<  "   r[0]    " << r[0] << "   r[1]   " << r[1] << "  r[2]  " << r[2] << "  r[3]  " << r[3] << endl<< endl;
 }
 
 
@@ -62,36 +59,43 @@ void VirtualMachine::setCarryBit(){
 }
 
 void VirtualMachine::setLessBit(){
-	sr &= 17; // set less, equal, and greater bit to zero, AND 010001 preserves state of overflow and carry bits.
+	sr &= 25; // set less, equal, and greater bit to zero, AND 010001 preserves state of overflow and carry bits.
 	sr |= 8;
+    cout << endl << " set less bit  " << sr << endl;
 }
 
 
 void VirtualMachine::setEqualBit(){
-	sr &= 17;
+	sr &= 21;
 	sr |= 4;
 }
 
 void VirtualMachine::setGreaterBit(){
-	sr &= 17;
+	sr &= 19;
 	sr |= 2;
+    cout << endl << "setGreaterBit   " << sr << endl;
 }
 
 bool VirtualMachine::isLessBit(){
-  if ( sr & 8 == 8 )
+  if ( (sr & 8) == 8 )
 		return true;
 	return false;
 }
 
 bool VirtualMachine::isGreaterBit(){
-	if ( sr & 2 == 2)
+    cout << endl << "SR   "  << sr << endl;
+	if ( (sr & 2) == 2){
 		return true;
+        cout << endl << "true" << endl;
+    }
 	return false;
 }
 
 bool VirtualMachine::isEqualBit(){
-	if ( sr & 4 == 4)
-		return true;
+	if ( (sr & 4) == 4){
+		cout << endl << sr << "  is EQUAL " << endl;
+        return true;
+    }
 	return false;
 }
 
@@ -141,16 +145,23 @@ void VirtualMachine::populateFunctionMap(){
 void VirtualMachine::LOAD(instruction &ins){
     r[ins.f2.RD] = mem[ins.f2.ADDR];
     __clock += 4;
+    cout << endl << "exit LOAD" << endl;
+
 }
 
 void VirtualMachine::LOADI(instruction &ins){
     r[ins.f3.RD] = ins.f3.CONST;
     __clock++;
+
+    cout << endl << "exit LOADI" << endl;
 }
 
 void VirtualMachine::STORE(instruction &ins){
+    cout << endl << "mem  "  << ins.f2.ADDR << "   " << r[ins.f2.RD] << endl;
     mem[ins.f2.ADDR] = r[ins.f2.RD];
     __clock += 4;
+    cout << endl << "exit STORE   " << mem[ins.f2.ADDR] << endl;
+
 }
 
 
@@ -225,6 +236,8 @@ void VirtualMachine::SUBI(instruction &ins){
     if ((~r[ins.f3.RD] + 1 ) > 65535)
         setCarryBit();
 
+    cout << endl << "exit SUBI" << endl;
+
     __clock++;
 }
 
@@ -250,6 +263,9 @@ void VirtualMachine::AND(instruction &ins){
 
 void VirtualMachine::ANDI(instruction &ins){
     r[ins.f3.RD] &= ins.f3.CONST;
+
+    cout << endl << "exit ANDI" << endl;
+
 }
 
 void VirtualMachine::XOR(instruction &ins){
@@ -266,6 +282,8 @@ void VirtualMachine::COMPL(instruction &ins){
 
 void VirtualMachine::SHL(instruction &ins){
     r[ins.f1.RD] <<= 1;
+    cout << endl << "exit SHL" << endl;
+
 }
 
 void VirtualMachine::SHLA(instruction &ins){
@@ -280,6 +298,8 @@ void VirtualMachine::SHLA(instruction &ins){
 
 void VirtualMachine::SHR(instruction &ins){
     r[ins.f1.RD] >>= 1;
+    cout << endl << "exit SHR" << endl;
+
 }
 
 void VirtualMachine::SHRA(instruction &ins){
@@ -307,10 +327,15 @@ void VirtualMachine::COMPRI(instruction &ins){
         setEqualBit();
     else
         setGreaterBit();
+    cout << endl << "exit COMPRI" << endl;
+
 }
 
 void VirtualMachine::GETSTAT(instruction &ins){
     r[ins.f1.RD] = sr;
+
+    cout << endl << "exit getstat" << endl;
+
 }
 
 void VirtualMachine::PUTSTAT(instruction &ins){
@@ -329,9 +354,12 @@ void VirtualMachine::JUMPL(instruction &ins){
 void VirtualMachine::JUMPE(instruction &ins){
     if(isEqualBit())
         pc = ins.f2.ADDR;
+    cout << endl << "exit JUMPE" << endl;
+
 }
 
 void VirtualMachine::JUMPG(instruction &ins){
+    cout << endl << " exit JUMPG" << endl;
 	if(isGreaterBit())
         pc = ins.f2.ADDR;
 }
@@ -348,6 +376,7 @@ void VirtualMachine::CALL(instruction &ins){
 
 	//jump to new location in mem
     pc = ins.f2.ADDR;
+    cout << "inside call " << endl;
 }
 
 void VirtualMachine::RETURN(instruction &ins){
@@ -360,6 +389,9 @@ void VirtualMachine::RETURN(instruction &ins){
 	r[0] = mem[sp++];
 	ir = mem[sp++];
 	sr = mem[sp++];
+
+    cout << endl << "exit RETURN" << endl;
+
 }
 
 void VirtualMachine::READ(instruction &ins){
@@ -372,6 +404,9 @@ void VirtualMachine::READ(instruction &ins){
 	r[ins.f1.RD] = (unsigned)atoi(line.c_str()); //effecient method for string to int cast
 	prog.close();
     cout << endl << r[ins.f1.RD] << endl;
+
+    cout << endl << "exit read" << endl;
+
 }
 
 void VirtualMachine::WRITE(instruction &ins){
@@ -381,13 +416,22 @@ void VirtualMachine::WRITE(instruction &ins){
 		exit(2);
 	ofs << to_string(r[ins.f1.RD]); //an effecient method for string casting
 	ofs.close();
+    cout << endl << "did it" << endl;
+    cout << endl << "exit WRITE" << endl;
+
 }
 
 void VirtualMachine::HALT(instruction &ins){
-	exit(0);
+	
+    cout << endl << "exit HALT" << endl;
+
+    exit(0);
 }
 
 void VirtualMachine::NOOP(instruction &ins){
+
+    cout << endl << "exit NOOP" << endl;
+
 	void(0);
 }
 
