@@ -49,6 +49,7 @@ class VirtualMachine{
   	bool isGreaterBit();
   	bool isLessBit();
   	bool isEqualBit();
+    void zeroCarryBit();
 
   	//opcode functions
   	void LOAD(instruction &);

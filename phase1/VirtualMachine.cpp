@@ -8,6 +8,7 @@ VirtualMachine::VirtualMachine(){
 	while (pc != limit){
     	ir = mem[pc++]; //fetch
     	execute();
+      cout << endl << "SR:  " << sr <<endl;
     	}
     cout << "yues this is current" << endl;
 
@@ -33,7 +34,7 @@ void VirtualMachine::populateMemory(){
 
 	//set mem base and limits
 	limit = pc;
-	pc = base = __clock = 0;
+	pc = base = __clock = sr = 0;
     sp = 255;
 
 	populateFunctionMap();
@@ -44,7 +45,8 @@ void VirtualMachine::execute(){
     cout << ins.i << endl;
     cout << ins.f1.OP << " " << ins.f1.RD << " " << ins.f1.I << " " << ins.f1.RS << " " << ins.f1.UNUSED << endl;
     cout << ins.f2.OP << " " << ins.f2.RD << " " << ins.f2.I << " " << ins.f2.ADDR << endl;
-    cout << ins.f3.OP << " " << ins.f3.RD << " " << ins.f3.I << " " << ins.f3.CONST << endl;	
+    cout << ins.f3.OP << " " << ins.f3.RD << " " << ins.f3.I << " " << ins.f3.CONST << endl;
+    cout << "SR :  " << sr << endl;	
     if(ins.f1.I)
 		(this->*instr_1_immed[ins.f1.OP])(ins);  // ==  (functionName)(); functionName.base == beginning addr in mem loc
 	else
@@ -153,7 +155,7 @@ void VirtualMachine::LOADI(instruction &ins){
     r[ins.f3.RD] = ins.f3.CONST;
     __clock++;
 
-    cout << endl << "exit LOADI" << endl;
+    cout << endl << "exit LOADI  " << sr << endl;
 }
 
 void VirtualMachine::STORE(instruction &ins){
@@ -170,6 +172,9 @@ void VirtualMachine::ADD(instruction &ins){
     if (r[ins.f1.RD] > 65535){
         setCarryBit();
         //r[ins.f1.RD] &= 65535;
+    }
+    else{
+        zeroCarryBit();
     }
 
     __clock++;
@@ -230,11 +235,16 @@ void VirtualMachine::SUB(instruction &ins){
     __clock++;
 }
 
+void VirtualMachine::zeroCarryBit(){
+    sr &= 30;
+}
 
 void VirtualMachine::SUBI(instruction &ins){
     r[ins.f3.RD] -= ins.f3.CONST;
-    if ((~r[ins.f3.RD] + 1 ) > 65535)
+    if ((int)r[ins.f3.RD] > 65535 || (int)r[ins.f3.RD] < -65535)
         setCarryBit();
+    else
+        zeroCarryBit();
 
     cout << endl << "exit SUBI" << endl;
 
@@ -297,6 +307,11 @@ void VirtualMachine::SHLA(instruction &ins){
 }
 
 void VirtualMachine::SHR(instruction &ins){
+    if ((r[ins.f1.RD] & 1) == 1)
+        setCarryBit();
+    else
+        zeroCarryBit();
+    
     r[ins.f1.RD] >>= 1;
     cout << endl << "exit SHR" << endl;
 
@@ -388,7 +403,7 @@ void VirtualMachine::RETURN(instruction &ins){
 	r[1] = mem[sp++];
 	r[0] = mem[sp++];
 	ir = mem[sp++];
-	sr = mem[sp++];
+	sr = mem[sp];
 
     cout << endl << "exit RETURN" << endl;
 
