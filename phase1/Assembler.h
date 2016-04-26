@@ -23,7 +23,7 @@ class Assembler{
     public:
         Assembler(); //main logic
         // string sendFinalObjProg(); //sends catted final prog.o file
-        void printContent();
+        void assemble(string);
     private:
         //internal "helper" functions
         void setFormat1(instruction &); //based on flag, use format 1 - 0
@@ -42,6 +42,7 @@ class Assembler{
         uint16_t first_num; // Register Destination
         uint16_t second_num; //could be empty 
         string instruct_opcode; //stores string of opcode
+        string prog;
              
 };
 #endif

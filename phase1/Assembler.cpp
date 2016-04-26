@@ -5,12 +5,17 @@
 using namespace std;
 
 Assembler::Assembler(){
+    initializeMemberFields();
+}
+
+void Assembler::assemble(string prog_name){
+    prog = prog_name;
     ifstream assemblyProg;
-    assemblyProg.open("prog.s");
+    assemblyProg.open(prog + ".s");
     if (!assemblyProg.is_open())
         exit(0);
-    initializeMemberFields();
     string line;
+    
     getline(assemblyProg, line);
     instruction ins = instruction(0);
     while(!assemblyProg.eof()){
@@ -27,16 +32,15 @@ Assembler::Assembler(){
         getline(assemblyProg, line);
         ins.i = 0;
     }
-    //close first
-    assemblyProg.close();
+    // assemblyProg.close();  //closed implicitly
 
     //open/close and output program
     ofstream assembledProg;
-    assembledProg.open ("prog.o", ofstream::out);
+    assembledProg.open (prog + ".o", ofstream::out);
     if (!assembledProg.is_open())
         exit(2);
     assembledProg << FinalObjProg;
-    assembledProg.close();
+    // assembledProg.close();   //closed implicitly
 
 }
 
@@ -47,8 +51,6 @@ void Assembler::setFormat1(instruction &ins){
 
     //defaulted to zero already, might remove
     ins.f1.I = 0;
-    if (instruct_opcode == "halt"){
-    }
 
 }
 
@@ -135,12 +137,4 @@ void Assembler::initializeMemberFields(){
         { "noop", {{25,0}} }
 
     };
-
-    first_num = -9999; //defaulted to out of bound values
-    second_num = -9999;
-
-}
-
-void Assembler::printContent(){
-    cout << endl << FinalObjProg << endl;
 }

@@ -20,27 +20,28 @@ using namespace std;
 
 class VirtualMachine{
 
-    private:
+  private:
     typedef void (VirtualMachine::*FP)(instruction &);
 
-	//member fields required for VM
-	static const int REG_FILE_SIZE = 4;
-	static const int MEM_SIZE = 256;
-	vector <unsigned> r;
-	vector <unsigned> mem;
-	int pc;
-	unsigned ir;
-	unsigned sr;
-	int sp;
-	int base;
-	int limit;
-	int __clock;
-	map <unsigned, FP> instr_0_immed;
-	map <unsigned, FP> instr_1_immed;
-        
-	//helper functions
+  	//member fields required for VM
+  	static const int REG_FILE_SIZE = 4;
+  	static const int MEM_SIZE = 256;
+  	vector <unsigned> r;
+  	vector <unsigned> mem;
+  	int pc;
+  	unsigned ir;
+  	unsigned sr;
+  	int sp;
+  	int base;
+  	int limit;
+  	int __clock;
+    string prog_o;    
+  	map <unsigned, FP> instr_0_immed;
+  	map <unsigned, FP> instr_1_immed;
+          
+  	//helper functions
   	void execute();
-  	void populateMemory();
+  	void populateMemory(string);
   	void populateFunctionMap();
   	void setCarryBit();
   	void setGreaterBit();
@@ -50,6 +51,8 @@ class VirtualMachine{
   	bool isLessBit();
   	bool isEqualBit();
     void zeroCarryBit();
+    void checkCarryBit(instruction &);
+    void writeClock();
 
   	//opcode functions
   	void LOAD(instruction &);
@@ -89,8 +92,8 @@ class VirtualMachine{
   	void NOOP(instruction &);
   	//end of instr functions
 
-    public:
-	VirtualMachine();
+  public:
+   void run(string);
       	
 };
 
