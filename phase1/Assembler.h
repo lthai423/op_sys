@@ -33,8 +33,10 @@ class Assembler{
         void storeSNN(string &); // store OPCODE and N!, if cin.good() store N2
         void appendToFinal(instruction &); //append produced # to final prog.o
         void initializeMemberFields();
-        // int returnNumIn2sComp(); //if num is negative, reformat before adding to instruction
-        
+        void checkRegister(uint16_t &);
+        void checkOP();
+        void checkADDR(uint16_t &);
+        void checkCONST(uint16_t &);        
 
         //member field
         map <string, array<int, 2>> opcodes; //stores opcode in decimal value and immediate "flag"
