@@ -44,45 +44,17 @@ void Assembler::assemble(string prog_name){
 
 }
 
-void Assembler::checkOP(){
-    if (opcodes.count(instruct_opcode) == 0)  // check to see if opcode exists
-        exit(9);
-}
-
-void Assembler::checkRegister(uint16_t &num){
-    if(num > 3 || num < 0)
-        exit(5);
-}
-
-void Assembler::checkCONST(uint16_t &num){
-    if (num > 128 || num < -128)
-        exit(6);
-}
-
-void Assembler::checkADDR(uint16_t &num){
-    if (num > 256 || num < 0)
-        exit(7);
-}
-
 void Assembler::setFormat1(instruction &ins){
-    checkOP();
-    checkRegister(first_num);
-    checkRegister(second_num);
-
     ins.f1.OP = opcodes[instruct_opcode][0];   
     ins.f1.RD = first_num;
     ins.f1.RS = second_num;
 
     //defaulted to zero already, might remove
-    // ins.f1.I = 0;
+    ins.f1.I = 0;
 
 }
 
 void Assembler::setFormat2_CONST(instruction &ins){
-    checkOP();
-    checkRegister(first_num);
-    checkCONST(second_num);
-
     ins.f3.OP = opcodes[instruct_opcode][0];
     ins.f3.RD = first_num;
     ins.f3.CONST = second_num;
@@ -91,10 +63,6 @@ void Assembler::setFormat2_CONST(instruction &ins){
 }
 
 void Assembler::setFormat2_ADDR(instruction &ins){
-    checkOP();
-    checkRegister(first_num);
-    checkADDR(second_num);
-
     ins.f2.OP = opcodes[instruct_opcode][0];
     ins.f2.RD = first_num;
     ins.f2.ADDR = second_num;
@@ -104,14 +72,11 @@ void Assembler::setFormat2_ADDR(instruction &ins){
 }
 
 void Assembler::setFormat3(instruction &ins){
-    checkOP();
-    checkADDR(first_num);
-
     ins.f2.OP = opcodes[instruct_opcode][0];
     ins.f2.ADDR = first_num;
     ins.f2.I = 1;
 }
- void Assembler::storeSNN(string &SNN){
+void Assembler::storeSNN(string &SNN){
     istringstream iss(SNN);
     int i = 0;
     string temp;
@@ -119,7 +84,7 @@ void Assembler::setFormat3(instruction &ins){
         if (i == 0)
             instruct_opcode = temp;
         else if (i == 1)
-            first_num = (uint16_t)atoi(temp.c_str());  //cast into 16 bit uint16_t integer
+            first_num = (uint16_t)atoi(temp.c_str());  //cast into 16 bit unsigned integer
         else
             second_num = (uint16_t)atoi(temp.c_str());
         i++;

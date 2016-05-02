@@ -8,5 +8,7 @@ int main(int argc, char *argv[]){
 	VirtualMachine vm;
 
 	assembler.assemble(argv[1]);
+    cout << endl << " is Assembled between" << endl;
+
 	vm.run(argv[1]);
 }

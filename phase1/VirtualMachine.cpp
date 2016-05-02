@@ -116,32 +116,6 @@ void VirtualMachine::checkCarryBit(instruction &ins){
     }
 }
 
-void VirtualMachine::checkOverflowCONST(instruction &ins){
-    if ( (ins.f3.CONST >> 7 == 1) && (r[ins.f3.RD] >> 15) == 1 && ( (ins.f3.CONST + r[ins.f3.RD]) >> 15 ) == 1 )
-        setOverflowBit();
-    else if ( (ins.f3.CONST >> 7 == 0) && (r[ins.f3.RD] >> 15) == 0 && ( (ins.f3.CONST + r[ins.f3.RD]) >> 15 ) == 0 )
-        setOverflowBit();       
-    else
-        zeroOverflowBit();
-}
-
-void VirtualMachine::checkOverflowRS(instruction &ins){
-    if( (r[ins.f1.RD] >> 15) == 1 && (r[ins.f1.RS] >> 15) == 1 && ( (r[ins.f1.RD] + r[ins.f1.RS]) >> 15 ) == 1)
-        setOverflowBit();
-    else if ( (ins.f1.RD >> 15) == 0 && (r[ins.f1.RS] >> 15) == 0 && ( (r[ins.f1.RD] + r[ins.f1.RS]) >> 15) == 0)
-        setOverflowBit();
-    else
-        zeroOverflowBit();
-}
-
-void VirtualMachine::setOverflowBit(){
-    sr &= 31;
-}
-
-void VirtualMachine::zeroOverflowBit(){
-    sr &= 15;
-}
-
 void VirtualMachine::populateFunctionMap(){
 	instr_0_immed = {
         { 0 , &VirtualMachine::LOAD },
@@ -204,7 +178,6 @@ void VirtualMachine::STORE(instruction &ins){
 void VirtualMachine::ADD(instruction &ins){
     r[ins.f1.RD] += r[ins.f1.RS];
     checkCarryBit(ins);
-    checkOverflowRS(ins);
 
     __clock++;
 }
@@ -212,7 +185,6 @@ void VirtualMachine::ADD(instruction &ins){
 void VirtualMachine::ADDI(instruction &ins){
     r[ins.f3.RD] += ins.f3.CONST;
     checkCarryBit(ins);
-    checkOverflowCONST(ins);
 
     __clock++;
 }
@@ -220,7 +192,6 @@ void VirtualMachine::ADDI(instruction &ins){
 void VirtualMachine::ADDC(instruction &ins){
     r[ins.f1.RD] = r[ins.f1.RD] + r[ins.f1.RS] + (sr & 1);
     checkCarryBit(ins);
-    checkOverflowRS(ins);
 
     __clock++;
 }
@@ -228,7 +199,6 @@ void VirtualMachine::ADDC(instruction &ins){
 void VirtualMachine::ADDCI(instruction &ins){
     r[ins.f3.RD] = r[ins.f3.RD] + r[ins.f3.CONST] + (sr & 1);
     checkCarryBit(ins);
-    checkOverflowRS(ins);
 
     __clock++;
 }
@@ -236,7 +206,6 @@ void VirtualMachine::ADDCI(instruction &ins){
 void VirtualMachine::SUB(instruction &ins){
     r[ins.f1.RD] -= r[ins.f1.RS];
     checkCarryBit(ins);
-    checkOverflowRS(ins);
 
     __clock++;
 }
@@ -245,7 +214,6 @@ void VirtualMachine::SUB(instruction &ins){
 void VirtualMachine::SUBI(instruction &ins){
     r[ins.f3.RD] -= ins.f3.CONST;
     checkCarryBit(ins);
-    checkOverflowRS(ins);
 
     __clock++;
 }
@@ -253,7 +221,6 @@ void VirtualMachine::SUBI(instruction &ins){
 void VirtualMachine::SUBC(instruction &ins){
     r[ins.f1.RD] = r[ins.f1.RD] - r[ins.f1.RS] - (sr & 1);
     checkCarryBit(ins);
-    checkOverflowRS(ins);
     
     __clock++;
 }
@@ -261,7 +228,6 @@ void VirtualMachine::SUBC(instruction &ins){
 void VirtualMachine::SUBCI(instruction &ins){
     r[ins.f3.RD] = r[ins.f3.RD] - ins.f3.CONST - (sr & 1);
     checkCarryBit(ins);
-    checkOverflowRS(ins);
     
     __clock++;
 }
@@ -292,13 +258,12 @@ void VirtualMachine::COMPL(instruction &ins){
 }
 
 void VirtualMachine::SHL(instruction &ins){
-	if( (r[ins.f1.RD] >> 15) == 1 )
+	if((r[ins.f1.RD] >> 15) == 1)
 		setCarryBit();
 	else
 		zeroCarryBit();
 
     r[ins.f1.RD] <<= 1;
-
     __clock++;
 }
 

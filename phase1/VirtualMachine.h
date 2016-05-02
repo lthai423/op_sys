@@ -53,10 +53,6 @@ class VirtualMachine{
     void zeroCarryBit();
     void checkCarryBit(instruction &);
     void writeClock();
-    void checkOverflowRS(instruction &);
-    void checkOverflowCONST(instruction &);
-    void setOverflowBit();
-    void zeroOverflowBit();
 
   	//opcode functions
   	void LOAD(instruction &);
