@@ -25,11 +25,14 @@ class PCB
 
 class sr {
 	public:
-	    uint16_t UNUSED:6;
-	    uint16_t RS:2;
-	    uint16_t I:1;
-	    uint16_t RD:2;
-	    uint16_t OP:5;
+	    uint16_t CARRY:1;
+	    uint16_t GREATERTHAN:1;
+	    uint16_t EQUALTO:1;
+	    uint16_t LESSTHAN:1;
+	    uint16_t OVERFLOW:1;
+	    uint16_t VMRETURNSTATUS:3;
+	    uint16_t IOREG:2;
+	    uint16_t DONTCARE:6;
 	};
 
 
