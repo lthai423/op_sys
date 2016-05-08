@@ -8,18 +8,6 @@
 
 using namespace std;
 
-class format0 {
-	public:
-	    uint16_t CARRY:1;
-	    uint16_t GREATERTHAN:1;
-	    uint16_t EQUALTO:1;
-	    uint16_t LESSTHAN:1;
-	    uint16_t OVERFLOW:1;
-	    uint16_t VMRETURNSTATUS:3;
-	    uint16_t IOREG:2;
-	    uint16_t DONTCARE:6;
-};
-
 class format1 {
 	public:
 		uint16_t UNUSED:6;
@@ -49,7 +37,6 @@ class format3 {
 
 union instruction {
 	int i;
-        format0 sr;
 	format1 f1;
 	format2 f2;
 	format3 f3;

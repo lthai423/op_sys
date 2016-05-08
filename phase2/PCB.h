@@ -3,6 +3,7 @@
 #include<vector>
 #include<stdint.h>
 #include<string>
+#include<cassert>
 
 #infdef PCB_H
 #define PCB_H
@@ -15,29 +16,14 @@ class PCB
          vector<int> reg;
 	 sr StatusReg;
          fstream infile, outfile, ofile, stfile;	//will read in and out of different types of files
-         int pc, sp, base, limit, read, write, clock;
+         int pc, sp, base, limit, clock;
 	 string ProcessName;
 	 int CPUTime, WaitTime, TurnaroundTime, IOTime, LargestStackSize;
+
+    public:
+	PCB(string filename);
 	 
 };
 
 #endif
 
-class sr {
-	public:
-	    uint16_t CARRY:1;
-	    uint16_t GREATERTHAN:1;
-	    uint16_t EQUALTO:1;
-	    uint16_t LESSTHAN:1;
-	    uint16_t OVERFLOW:1;
-	    uint16_t VMRETURNSTATUS:3;
-	    uint16_t IOREG:2;
-	    uint16_t DONTCARE:6;
-	};
-
-
-
-union s_r {
-	int i;
-	sr status;
-};
