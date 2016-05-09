@@ -1,4 +1,7 @@
 #include "PCB.h"
+#include "Assembler.h"
+#include "VirtualMachine.h"
+#include "os.h"
 
 using namespace std;
 
@@ -14,19 +17,11 @@ PCB::PCB(string filename)
     reg[1]=0;
     reg[2]=0;
     reg[3]=0;
-    string name = filename + ".in";
-    infile.open(name.c_str(),fstream::in);
-    name = filename + ".o";
-    ofile.open(name.c_str(),fstream::in);
-    name = filename + ".st";
-    stfile.open(name.c_str(),fstream::out);
-    stfile.close();
-    stfile.open(name.c_str(),fstream::out | fstream::in);
-    name = filename + ".out";
-    outfile.open(name.c_str(), fstream::out);
-    assert(outfile.open());	
-    ProcessName = filename;
-    assert(stfile.open());
+    ProcessName = filename.substr(0, filename.size()-2);
+    ofileName = ProcessName + ".o";
+    infileName = ProcessName + ".in";
+    outfileName = ProcessName + ".out";
+    stackfileName = ProcessName + ".st";
         
     CPUTime=0;
     WaitTime=0;

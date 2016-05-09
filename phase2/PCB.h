@@ -17,12 +17,11 @@ class PCB
 	 sr StatusReg;
          fstream infile, outfile, ofile, stfile;	//will read in and out of different types of files
          int pc, sp, base, limit, clock;
-	 string ProcessName;
+	 string ProcessName, ofileName, infileName, outfileName, stackfileName;
 	 int CPUTime, WaitTime, TurnaroundTime, IOTime, LargestStackSize;
 
     public:
 	PCB(string filename);
-	 
 };
 
 #endif
