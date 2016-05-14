@@ -23,8 +23,11 @@ private:
     queue<PCB *> readyQ, waitQ;
     PCB * running;
     fstream progfile;
-    int CPUTime, waitTime, turnaroundTime, I/
-    
+    int systemTime, ConSwitchTime, jobsCPUtime, numofprocessesCompleted;
+    float SysCPUutilization, userCPUutilization, throughput;
+
+    void ContextSwitch();
+    friend class VirtualMachine;
      	 	
 
 public:

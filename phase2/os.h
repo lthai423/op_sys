@@ -13,7 +13,7 @@
 
 using namespace std;
 
-class OS
+class os
 {
 private:
     Assembler assm;
@@ -25,7 +25,10 @@ private:
     fstream progfile;
     int systemTime, ConSwitchTime, jobsCPUtime, numofprocessesCompleted;
     float SysCPUutilization, userCPUutilization, throughput;
-    friend class VirtualMachine;     	 	
+
+    void ContextSwitch();
+    friend class VirtualMachine;
+     	 	
 
 public:
      os();
