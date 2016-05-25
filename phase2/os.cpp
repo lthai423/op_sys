@@ -1,4 +1,7 @@
 #include "os.h"
+#include "PCB.h"
+#include "Assembler.h"
+#include "VirtualMachine.h"
 using namespace std;
 
 //constructor
@@ -31,5 +34,17 @@ os::os()
           PCB* p = new PCB(filename);
           jobs.push_back(p);
           assm.assemble(filename.c_str(), p);
+
+	  p->ofile.open(p->ofileName.c_str(), ios::in);
+	  if(!p->ofile.is_open())
+          {
+               cout << "Error: " << p->ofileName << "failed to open" << endl;
+
+          }
      }
+}
+
+os::run()
+{
+     
 }

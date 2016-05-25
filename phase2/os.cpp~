@@ -16,4 +16,25 @@ os::os()
      vm.limit = 0;
      vm.__clock = 0;
 
+     ifstream progfile;
+     progfile.open("progs", ios::in)
+     if(!progfile.is_open())
+     {
+          cout << "Progfile didn't open" << endl;
+     }
+
+     while(!progfile.eof())
+     {
+          string filename;
+          getline(progfile, filename);
+
+          PCB* p = new PCB(filename);
+          jobs.push_back(p);
+          assm.assemble(filename.c_str(), p);
+     }
+}
+
+os::run()
+{
+     
 }
