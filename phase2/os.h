@@ -5,6 +5,7 @@
 #include<map>
 #include<vector>
 #include<fstream>
+#include<sstream>
 #include<iostream>
 #include<sstream>
 #include "Assembler.h"

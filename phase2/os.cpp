@@ -39,7 +39,22 @@ os::os()
 	  if(!p->ofile.is_open())
           {
                cout << "Error: " << p->ofileName << "failed to open" << endl;
+	       exit();
 
+          }
+          int limit = p->base;
+	  string line;
+	  getline(p->ofile, line);
+	  istringstream str(line.c_str());
+	  str >> vm.mem[limit];
+	  limit++;
+	  vm.limit++;
+	  while(getline(p->ofile,line).good())
+	  {
+	       istringstream str(line.c_str());
+	       str >> vm.mem[limit];
+	       limit++;
+	       vm.limit++;
           }
      }
 }
