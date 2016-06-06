@@ -50,13 +50,9 @@ class VirtualMachine{
   	bool isGreaterBit();
   	bool isLessBit();
   	bool isEqualBit();
-	void zeroCarryBit();
-	void checkCarryBit(instruction &);
-	void writeClock();
-	void checkOverflowRS(instruction &);
-	void checkOverflowCONST(instruction &);
-	void setOverflowBit();
-	void zeroOverflowBit();
+    void zeroCarryBit();
+    void checkCarryBit(instruction &);
+    void writeClock();
 
   	//opcode functions
   	void LOAD(instruction &);
@@ -96,18 +92,6 @@ class VirtualMachine{
   	void NOOP(instruction &);
   	//end of instr functions
 
-
-        union STATUS_REGISTER{
-                  int i;
-                  unsigned CARRY:1;
-                  unsigned GREATER_THAN:1;
-                  unsigned EQUAL_TO:1;
-                  unsigned LESS_THAN:1;
-                  unsigned OVERFLOW:1;
-                  unsigned RETURN_STATUS:3;
-                  unsigned IN_OUT_REGS:2;
-                  unsigned DONTCARE:6;
-        };
   public:
    void run(string);
       	

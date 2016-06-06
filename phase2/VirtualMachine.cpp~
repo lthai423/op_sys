@@ -412,7 +412,6 @@ void VirtualMachine::WRITE(instruction &ins){
 }
 
 void VirtualMachine::HALT(instruction &ins){
-	if()
 	__clock++;
     exit(0);
 }

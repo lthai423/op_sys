@@ -56,10 +56,30 @@ os::os()
 	       limit++;
 	       vm.limit++;
           }
+	  if(p->base>0)
+              p->limit += p->base;
+	  p->ofile.close();
+ 	  p->outfile.open(p->outfileName.c_str(), ios::out);
+	  p->infile.open(p->infileName.c_str(), ios::in);
+
+     }
+     
+     for(list<PCB::iterator it = jobs.begin; it!=jobs.end(); it++)
+     {
+	  readyQ.push(*it);
      }
 }
 
 os::run()
 {
-     
+	running = readyQ.front();
+	readyQ.pop();
+	while(true)
+	{
+	
+
+	}
+        
+        vm.ir=0;
+	
 }

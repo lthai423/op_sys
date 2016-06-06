@@ -14,6 +14,7 @@ class VirtualMachine;
 #include <stdlib.h>  // std::atoi
 #include <stdint.h> // std::unsigned
 #include "union.h" // facilitates parsing of prog.o
+#include "PCB.h"  //facilitates parsing of StatusReg
 #include <vector>
 
 using namespace std;
